@@ -2,7 +2,7 @@ import { notion } from '@/lib/notion';
 import { NotionContent } from '@/components/NotionContent';
 import { PageObjectResponse, BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import Image from 'next/image';
-import ImageGridWrapper from '@/components/ImageGridWrapper';
+import ImageGrid from '@/components/ImageGrid';
 
 async function getBlockChildren(blockId: string) {
   const response = await notion.blocks.children.list({
@@ -51,20 +51,6 @@ function getDescription(page: PageObjectResponse) {
   return '';
 }
 
-const photos = [
-  {
-    src: '/images/test_image_1.jpg',
-    width: 800,
-    height: 600,
-    alt: 'Test Image 1',
-  },
-  {
-    src: '/images/test_image_2.jpg',
-    width: 800,
-    height: 600,
-    alt: 'Test Image 2',
-  },
-];
 
 export default async function TestPage() {
   try {
@@ -123,7 +109,26 @@ export default async function TestPage() {
           <div className="prose prose-lg max-w-none text-black">
             <NotionContent blocks={blocks} />
           </div>
-          <ImageGridWrapper />
+          <ImageGrid photos={[
+            {
+              src: '/images/test_image_1.jpg',
+              width: 800,
+              height: 600,
+              alt: 'Test Image 1',
+            },
+            {
+              src: '/images/test_image_2.jpg',
+              width: 400,
+              height: 600,
+              alt: 'Test Image 2',
+            },
+            {
+              src: '/images/test_image_3.jpg',
+              width: 800,
+              height: 600,
+              alt: 'Test Image 3',
+            },
+          ]} layout="masonry" />
         </div>
         <footer className="mt-16 p-8 flex justify-between items-center">
           <div>

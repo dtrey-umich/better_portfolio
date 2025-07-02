@@ -1,44 +1,64 @@
 'use client';
 import PhotoAlbum from 'react-photo-album';
 import Image from 'next/image';
+import { Gallery, Item } from 'react-photoswipe-gallery';
+import 'photoswipe/dist/photoswipe.css';
 
-const photos = [
-  {
-    src: '/images/test_image_1.jpg',
-    width: 800,
-    height: 600,
-    alt: 'Test Image 1',
-  },
-  {
-    src: '/images/test_image_2.jpg',
-    width: 800,
-    height: 600,
-    alt: 'Test Image 2',
-  },
-];
+interface Photo {
+  src: string;
+  width: number;
+  height: number;
+  alt: string;
+}
 
-export default function ImageGrid() {
+interface ImageGridProps {
+  photos: Photo[];
+  columns?: number;
+  spacing?: number;
+  layout?: 'rows' | 'columns' | 'masonry';
+}
+
+export default function ImageGrid({ photos, layout = 'rows', columns = 2, spacing = 32 }: ImageGridProps) {
   return (
     <div className="my-12">
-      <PhotoAlbum
-        layout="rows"
-        photos={photos}
-        columns={2}
-        spacing={32}
-        renderPhoto={({ photo, imageProps }) => (
-          <div className="overflow-hidden rounded-2xl bg-white shadow-lg h-full w-full flex items-stretch">
-            <Image
-              src={photo.src}
-              alt={photo.alt}
+      <Gallery
+        withCaption
+        options={{ 
+          showHideAnimationType: 'fade',
+          bgOpacity: 0.9
+        }}
+      >
+        <PhotoAlbum
+          layout={layout}
+          photos={photos}
+          columns={columns}
+          spacing={spacing}
+          renderPhoto={({ photo, imageProps }) => (
+            <Item
+              original={photo.src}
+              thumbnail={photo.src}
               width={photo.width}
               height={photo.height}
-              className="rounded-2xl cursor-pointer transition-transform duration-200 hover:scale-105 object-cover w-full h-full"
-              style={{ ...(imageProps.style || {}), width: '100%', height: '100%' }}
-              onClick={imageProps.onClick}
-            />
-          </div>
-        )}
-      />
+              caption={photo.alt}
+            >
+              {({ ref, open }) => (
+                <div className="overflow-hidden rounded-2xl bg-white shadow-lg h-full w-full flex items-stretch">
+                  <Image
+                    ref={ref as any}
+                    src={photo.src}
+                    alt={photo.alt}
+                    width={photo.width}
+                    height={photo.height}
+                    className="rounded-2xl cursor-pointer transition-transform duration-200 hover:scale-105 object-cover w-full h-full"
+                    style={{ ...(imageProps.style || {}), width: '100%', height: '100%' }}
+                    onClick={open}
+                  />
+                </div>
+              )}
+            </Item>
+          )}
+        />
+      </Gallery>
     </div>
   );
 } 
