@@ -52,7 +52,7 @@ export function ProjectGallery({
             transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
           >
             <motion.div 
-              className="grid grid-cols-2 gap-10"
+              className="grid grid-cols-2 gap-12"
               layout
             >
               <AnimatePresence mode="popLayout">

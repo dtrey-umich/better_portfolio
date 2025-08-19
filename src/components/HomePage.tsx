@@ -16,6 +16,7 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [isStackHovered, setIsStackHovered] = useState(false);
   const [showAllProjects, setShowAllProjects] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   // Simple: calculate which projects should be in gallery
   const galleryProjects = showAllProjects 
@@ -40,12 +41,18 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
   const currentCategory = activeCategories.length > 0 ? activeCategories[0] : null;
 
   const toggleCategory = (categoryId: string) => {
+    setIsTransitioning(true);
     setActiveCategories(prev => 
       prev.includes(categoryId)
         ? prev.filter(id => id !== categoryId)
         : [...prev, categoryId]
     );
     setShowAllProjects(false);
+    
+    // Clear transitioning state after animation completes
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 3500); // Slightly longer than the longest animation (3.0s + buffer)
   };
 
   const handleSeeAllProjects = () => {
@@ -82,13 +89,13 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
             className="flex-shrink-0"
           >
             <div 
-              className="relative w-[350px] h-[280px]"
-              onMouseEnter={() => setIsStackHovered(true)}
-              onMouseLeave={() => setIsStackHovered(false)}
+              className="relative w-[500px] h-[400px]"
+              onMouseEnter={() => !isTransitioning && setIsStackHovered(true)}
+              onMouseLeave={() => !isTransitioning && setIsStackHovered(false)}
             >
               {/* See All Projects Card */}
               <motion.div
-                className="absolute inset-0 w-[350px] h-[280px] bg-white rounded-2xl shadow-lg cursor-pointer flex items-center justify-center text-black border"
+                className="absolute inset-0 w-[500px] h-[400px] bg-white rounded-2xl shadow-lg cursor-pointer flex items-center text-black border"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSeeAllProjects}
@@ -97,48 +104,63 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
                   fontFamily: 'Gabarito, sans-serif'
                 }}
               >
-                <div className="text-center">
-                  <div className="text-4xl mb-4">📂</div>
-                  <div className="text-[32px] font-medium mb-2">See All Projects</div>
-                  <div className="text-base opacity-60">
+                <div className="pl-12">
+                  <div className="text-[40px] font-medium mb-3">See All Projects</div>
+                  <div className="text-lg opacity-60">
                     {initialProjects.length} projects
                   </div>
                 </div>
               </motion.div>
 
-              {/* All Cards - Always render all for smooth layoutId transitions */}
+              {/* Stack Cards - Render visible stack cards + all potential gallery cards */}
               <AnimatePresence>
                 {initialProjects.map((project, index) => {
-                  const isVisible = !currentCategory || stackProjects.slice(0, 4).includes(project);
-                  const shouldPeek = hoveredCategory && project.categoryScores[hoveredCategory] > 0;
-                  const shouldSplay = isStackHovered;
+                  const shouldPeek = hoveredCategory && project.categoryScores[hoveredCategory] > 0 && !isTransitioning;
+                  const shouldSplay = isStackHovered && !isTransitioning;
                   const stackIndex = stackProjects.indexOf(project);
                   const isInVisibleStack = stackIndex >= 0 && stackIndex < 4;
                   const isInGallery = currentCategory && galleryProjects.includes(project);
+                  const couldBeInGallery = activeCategories.some(catId => project.categoryScores[catId] > 0);
+                  
+                  // Render if: in visible stack OR could potentially be in gallery OR currently in gallery
+                  const shouldRender = isInVisibleStack || couldBeInGallery || isInGallery;
+                  
+                  if (!shouldRender) return null;
                   
                   return (
                     <motion.div
                       key={`stack-${project.id}`}
                       className="absolute inset-0"
                       style={{ 
-                        zIndex: isInVisibleStack ? 4 - stackIndex : 0,
-                        pointerEvents: isVisible ? 'auto' : 'none',
-                        opacity: isInGallery ? 1 : undefined // Force instant opacity for gallery cards
+                        zIndex: isInVisibleStack ? 4 - stackIndex : -1, // Hidden cards go behind
+                        pointerEvents: isInVisibleStack ? 'auto' : 'none',
                       }}
                       layoutId={project.id}
                       initial={false}
                       animate={{
-                        x: isInVisibleStack && shouldSplay ? (stackIndex + 1) * 12 : (isInVisibleStack && shouldPeek ? (stackIndex + 1) * 8 : 0),
-                        y: isInVisibleStack ? (shouldSplay ? (stackIndex + 1) * 8 : (stackIndex + 1) * 4) : 20,
-                        rotate: isInVisibleStack && shouldSplay ? (stackIndex + 1) * 2 : (isInVisibleStack && shouldPeek ? (stackIndex + 1) * 1 : 0),
-                        opacity: isInGallery ? undefined : (isVisible ? 1 : 0), // Don't animate opacity for gallery cards
-                        scale: isVisible ? 1 : 0.9,
+                        x: isInVisibleStack && shouldSplay ? (stackIndex + 1) * 20 : (isInVisibleStack && shouldPeek ? (stackIndex + 1) * 12 : 0),
+                        y: isInVisibleStack ? (shouldSplay ? (stackIndex + 1) * 12 : (stackIndex + 1) * 4) : 4,
+                        rotate: isInVisibleStack && shouldSplay ? (stackIndex + 1) * 3 : (isInVisibleStack && shouldPeek ? (stackIndex + 1) * 1.5 : 0),
+                        opacity: isInVisibleStack ? 1 : (isInGallery ? 1 : 0), // Pre-rendered cards are invisible until needed
+                        scale: 1,
+                      }}
+                      exit={{
+                        opacity: 0,
+                        scale: 0.95,
+                        transition: {
+                          type: "spring",
+                          stiffness: 80,
+                          damping: 20,
+                          duration: 2.5
+                        }
                       }}
                       transition={{
                         type: "spring",
-                        stiffness: isVisible ? 500 : 80,
-                        damping: isVisible ? 40 : 20,
-                        duration: isVisible ? 0.5 : 2.5,
+                        stiffness: isInVisibleStack ? 500 : 80,
+                        damping: isInVisibleStack ? 40 : 20,
+                        duration: isInVisibleStack ? 0.5 : 2.5,
+                        // Make opacity instant for gallery cards
+                        opacity: { duration: isInGallery ? 0 : undefined }
                       }}
                     >
                       <ProjectCard
@@ -160,7 +182,7 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
             transition={{ duration: 0.6, delay: 0.4, ease: [0.2, 0.8, 0.2, 1] }}
             className="flex-shrink-0"
           >
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3 w-[300px]">
+            <div className="grid grid-cols-2 gap-x-5 gap-y-4 w-[500px]">
               {categories.map((category, index) => (
                 <motion.div
                   key={category.id}
@@ -190,7 +212,7 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
         >
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-8">
             <AnimatePresence mode="popLayout">
               {galleryProjects.map((project, index) => (
                 <motion.div

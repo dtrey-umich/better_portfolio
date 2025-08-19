@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import React from 'react';
 
 export interface Category {
   id: string;
@@ -16,6 +17,45 @@ interface CategoryButtonProps {
   onHover: (categoryId: string | null) => void;
 }
 
+// Icon component that uses your original SVG files with color overlay
+const CategoryIcon = ({ category, isActive }: { category: Category; isActive: boolean }) => {
+  const [svgContent, setSvgContent] = React.useState<string>('');
+  
+  React.useEffect(() => {
+    const loadSvg = async () => {
+      try {
+        const response = await fetch(`/category icons/${category.id}_icon.svg`);
+        const text = await response.text();
+        // Remove the hardcoded fill="black" and force dimensions to make it inherit CSS size
+        const modifiedSvg = text
+          .replace(/fill="black"/g, '')
+          .replace(/width="[^"]*"/g, 'width="100%"')
+          .replace(/height="[^"]*"/g, 'height="100%"');
+        setSvgContent(modifiedSvg);
+      } catch (error) {
+        console.error(`Failed to load ${category.id} icon:`, error);
+      }
+    };
+    
+    loadSvg();
+  }, [category.id]);
+  
+  if (!svgContent) {
+    return <div className="w-10 h-10" />; // Placeholder while loading
+  }
+  
+  return (
+    <div 
+      className={`w-10 h-10 transition-all duration-200 ${isActive ? 'text-white' : ''}`}
+      style={{ 
+        color: isActive ? 'white' : category.color,
+        fill: isActive ? 'white' : category.color
+      }}
+      dangerouslySetInnerHTML={{ __html: svgContent }}
+    />
+  );
+};
+
 export function CategoryButton({ 
   category, 
   isActive, 
@@ -25,11 +65,11 @@ export function CategoryButton({
   return (
     <motion.button
       className={`
-        w-[140px] h-12 rounded-2xl font-medium text-base transition-all duration-200 border
-        flex items-center justify-between px-4
+        w-[240px] h-20 rounded-2xl font-medium text-lg transition-all duration-200 border
+        flex items-center justify-between px-6
         ${isActive 
-          ? 'text-white border-transparent shadow-sm' 
-          : 'text-black bg-white border-gray-200 hover:border-gray-300'
+          ? 'text-white border-transparent shadow-lg' 
+          : 'text-black bg-white border-gray-300 hover:border-gray-400 shadow-lg'
         }
       `}
       style={{
@@ -47,13 +87,9 @@ export function CategoryButton({
       <span>{category.name}</span>
       
       {/* Icon right-aligned */}
-      <img 
-        src={`/category icons/${category.id}_icon.svg`} 
-        alt={`${category.name} icon`}
-        className="w-4 h-4"
-        style={{ 
-          filter: isActive ? 'brightness(0) invert(1)' : 'none' 
-        }}
+      <CategoryIcon 
+        category={category}
+        isActive={isActive}
       />
     </motion.button>
   );
