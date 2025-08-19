@@ -2,25 +2,54 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground: #000000;
+  --font-gabarito: 'Gabarito', sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-gabarito);
+  font-size: 16px;
+  line-height: 1.5;
 }
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+/* Category Colors */
+.category-research { color: #97CCF6; }
+.category-robotics { color: #B2E272; }
+.category-software { color: #D096F5; }
+.category-sculpture { color: #F1BD6B; }
+.category-videography { color: #F5C16B; }
+.category-play { color: #EC6F6B; }
+
+.bg-category-research { background-color: #97CCF6; }
+.bg-category-robotics { background-color: #B2E272; }
+.bg-category-software { background-color: #D096F5; }
+.bg-category-sculpture { background-color: #F1BD6B; }
+.bg-category-videography { background-color: #F5C16B; }
+.bg-category-play { background-color: #EC6F6B; }
