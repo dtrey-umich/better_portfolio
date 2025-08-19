@@ -1,9 +1,19 @@
 @import "tailwindcss";
 
+/* Custom font - Trey Handwrite */
+@font-face {
+  font-family: 'Trey Handwrite';
+  src: url('/trey handwrite - fixed.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #000000;
   --font-gabarito: 'Gabarito', sans-serif;
+  --font-trey-handwrite: 'Trey Handwrite', cursive;
 }
 
 body {

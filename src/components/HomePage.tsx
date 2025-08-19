@@ -5,6 +5,47 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CategoryButton, Category } from '@/components/CategoryButton';
 import { ProjectCard, Project } from '@/components/ProjectCard';
 import { IconSprite } from '@/components/IconSprite';
+import { InstructionalText } from '@/components/InstructionalText';
+import React from 'react';
+
+// Small icon component for the "See All Projects" card
+const CategoryIconSmall = ({ category }: { category: Category }) => {
+  const [svgContent, setSvgContent] = React.useState<string>('');
+  
+  React.useEffect(() => {
+    const loadSvg = async () => {
+      try {
+        const response = await fetch(`/category icons/${category.id}_icon.svg`);
+        const text = await response.text();
+        // Remove the hardcoded fill="black" and force dimensions to make it inherit CSS size
+        const modifiedSvg = text
+          .replace(/fill="black"/g, '')
+          .replace(/width="[^"]*"/g, 'width="100%"')
+          .replace(/height="[^"]*"/g, 'height="100%"');
+        setSvgContent(modifiedSvg);
+      } catch (error) {
+        console.error(`Failed to load ${category.id} icon:`, error);
+      }
+    };
+    
+    loadSvg();
+  }, [category.id]);
+  
+  if (!svgContent) {
+    return <div className="w-5 h-5" />; // Placeholder while loading
+  }
+  
+  return (
+    <div 
+      className="w-5 h-5 opacity-60"
+      style={{ 
+        color: category.color,
+        fill: category.color
+      }}
+      dangerouslySetInnerHTML={{ __html: svgContent }}
+    />
+  );
+};
 
 interface HomePageClientProps {
   initialProjects: Project[];
@@ -79,6 +120,9 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
       <IconSprite />
       
       <div className="max-w-7xl mx-auto px-[60px] py-[60px]">
+        {/* Instructional Text */}
+        <InstructionalText />
+        
         {/* Main Content Layout */}
         <div className="flex items-start gap-[120px] mb-[80px]">
           {/* Left: Card Stack */}
@@ -105,9 +149,11 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
                 }}
               >
                 <div className="pl-12">
-                  <div className="text-[40px] font-medium mb-3">See All Projects</div>
-                  <div className="text-lg opacity-60">
-                    {initialProjects.length} projects
+                  <div className="text-[40px] font-medium">See All Projects</div>
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map((category) => (
+                      <CategoryIconSmall key={category.id} category={category} />
+                    ))}
                   </div>
                 </div>
               </motion.div>
