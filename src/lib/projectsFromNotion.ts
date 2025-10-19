@@ -30,12 +30,16 @@ export async function getProjectsFromNotion(): Promise<Project[]> {
         // Create slug from title
         const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         
+        // Get date from page
+        const date = getDateFromPage(page) || 'Date not specified';
+        
         return {
           id: page.id,
           title,
           description,
           image: image || '/images/test_image_1.jpg', // fallback image
           slug,
+          date,
           categories,
           categoryScores
         };
@@ -173,6 +177,26 @@ function mapPropertyToCategory(propName: string): string | null {
   };
   
   return mapping[propName.toLowerCase()] || null;
+}
+
+function getDateFromPage(page: PageObjectResponse): string | null {
+  const possibleDateProps = ['date', 'Date', 'Created', 'Published', 'Start Date'];
+  
+  for (const propName of possibleDateProps) {
+    const property = page.properties[propName];
+    if (property?.type === 'date' && property.date) {
+      return new Date(property.date.start).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long'
+      });
+    }
+  }
+  
+  // Fallback to last edited time
+  return new Date(page.last_edited_time).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long'
+  });
 }
 
 // Default categories - Updated with Figma design colors

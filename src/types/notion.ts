@@ -1,13 +1,10 @@
 import { BlockObjectResponse, PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
-export type NotionBlock = BlockObjectResponse;
-export type NotionPage = PageObjectResponse;
-
 export interface NotionContentProps {
-  blocks: NotionBlock[];
+  blocks: BlockObjectResponse[];
 }
 
-export interface NotionBlock {
+export interface NotionBlockContent {
   type: string;
   paragraph?: {
     rich_text: Array<{
