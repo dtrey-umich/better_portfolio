@@ -30,7 +30,7 @@ export function TopNavigation() {
               className="relative"
             >
               <img
-                src="/images/Site Logo.JPG"
+                src="/better_portfolio/images/Site Logo.JPG"
                 alt="Site Logo"
                 className="h-12 w-auto object-contain"
               />
