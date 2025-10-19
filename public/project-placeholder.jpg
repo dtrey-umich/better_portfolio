@@ -1,0 +1,8 @@
+<!-- A simple SVG placeholder with a grid pattern -->
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" fill="#f0f0f0"/>
+  <path d="M0 0h200v200H0z" fill="#f0f0f0"/>
+  <path d="M20 0v200M40 0v200M60 0v200M80 0v200M100 0v200M120 0v200M140 0v200M160 0v200M180 0v200" stroke="#e0e0e0" stroke-width="1"/>
+  <path d="M0 20h200M0 40h200M0 60h200M0 80h200M0 100h200M0 120h200M0 140h200M0 160h200M0 180h200" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="100" y="100" font-family="Arial" font-size="14" fill="#999" text-anchor="middle" dominant-baseline="middle">No Image</text>
+</svg>

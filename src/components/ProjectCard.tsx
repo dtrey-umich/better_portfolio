@@ -18,7 +18,7 @@ export interface Project {
 interface ProjectCardProps {
   project: Project;
   categories: Category[];
-  onClick: () => void;
+  onClick?: () => void;
 }
 
 // Reusable CategoryIcon component for cards
@@ -40,7 +40,7 @@ const CategoryIcon = ({
   React.useEffect(() => {
     const loadSvg = async () => {
       try {
-        const response = await fetch(`/better_portfolio/category icons/${categoryId}_icon.svg`);
+        const response = await fetch(`/better_portfolio/category-icons/${categoryId}_icon.svg`);
         const text = await response.text();
         // Remove the hardcoded fill="black" and force dimensions to make it inherit CSS size
         const modifiedSvg = text
@@ -81,12 +81,12 @@ export function ProjectCard({ project, categories, onClick }: ProjectCardProps) 
 
   return (
     <motion.div
-      className="w-[500px] h-[400px] bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer group relative"
+      className={`w-[500px] h-[400px] bg-white rounded-2xl shadow-lg overflow-hidden group relative ${onClick ? 'cursor-pointer' : 'cursor-default'}`}
       whileHover={{ 
         scale: 1.02, 
         boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)" 
       }}
-      onClick={onClick}
+      onClick={onClick ? onClick : undefined}
       layout
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -138,12 +138,14 @@ export function ProjectCard({ project, categories, onClick }: ProjectCardProps) 
         {/* Bottom row with "Click to read more" and category icons */}
         <div className="flex justify-between items-center">
           {/* Click to read more */}
-          <p 
-            className="text-base text-gray-500 underline"
-            style={{ fontFamily: 'Gabarito, sans-serif' }}
-          >
-            Click to read more
-          </p>
+          {onClick && (
+            <p 
+              className="text-base text-gray-500 underline"
+              style={{ fontFamily: 'Gabarito, sans-serif' }}
+            >
+              Click to read more
+            </p>
+          )}
           
           {/* Category icons - positioned with consistent margins */}
           <div className="flex gap-3">

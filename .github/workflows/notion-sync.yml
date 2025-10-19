@@ -5,6 +5,10 @@ on:
     - cron: '0 9 * * *'  # Run at 9 AM UTC every day
   workflow_dispatch:  # Allow manual triggering
 
+permissions:
+  contents: write
+  pages: write
+
 env:
   NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
   NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
@@ -25,11 +29,17 @@ jobs:
         run: npm ci
         
       - name: Generate content from Notion
-        run: node scripts/generate-notion-content.js
+        run: |
+          echo "Starting content generation..."
+          echo "NOTION_API_KEY exists: ${{ secrets.NOTION_API_KEY != '' }}"
+          echo "NOTION_DATABASE_ID exists: ${{ secrets.NOTION_DATABASE_ID != '' }}"
+          node scripts/generate-notion-content.js
         
       - name: Commit and push if changes
         run: |
-          git config --global user.name 'GitHub Action Bot'
-          git config --global user.email 'bot@users.noreply.github.com'
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add .
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update content from Notion [skip ci]" && git push)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

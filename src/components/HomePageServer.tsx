@@ -1,5 +1,6 @@
-import { mockProjects } from '@/data/mockProjects';
 import { HomePageClient } from './HomePage';
+import path from 'path';
+import fs from 'fs/promises';
 
 // Define the categories with their colors and icons
 export const DEFAULT_CATEGORIES = [
@@ -12,11 +13,20 @@ export const DEFAULT_CATEGORIES = [
 ];
 
 export async function HomePageServer() {
-  // Use mock data for testing animations
-  const projects = mockProjects;
+  // Load real projects from generated JSON
+  let projects = [];
+  try {
+    const projectsPath = path.join(process.cwd(), 'src/data/projects.json');
+    const projectsData = await fs.readFile(projectsPath, 'utf-8');
+    const { projects: loadedProjects } = JSON.parse(projectsData);
+    projects = loadedProjects;
+  } catch (error) {
+    console.error('Error loading projects:', error);
+  }
+
   const categories = DEFAULT_CATEGORIES;
   
-  console.log('Using mock projects for testing:', projects.length);
+  console.log('Loaded projects:', projects.length);
 
   return (
     <HomePageClient 

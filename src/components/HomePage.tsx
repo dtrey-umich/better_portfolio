@@ -6,6 +6,7 @@ import { CategoryButton, Category } from '@/components/CategoryButton';
 import { ProjectCard, Project } from '@/components/ProjectCard';
 import { IconSprite } from '@/components/IconSprite';
 import { InstructionalText } from '@/components/InstructionalText';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 // Small icon component for the "See All Projects" card
@@ -15,7 +16,7 @@ const CategoryIconSmall = ({ category }: { category: Category }) => {
   React.useEffect(() => {
     const loadSvg = async () => {
       try {
-        const response = await fetch(`/category icons/${category.id}_icon.svg`);
+        const response = await fetch(`/better_portfolio/category-icons/${category.id}_icon.svg`);
         const text = await response.text();
         // Remove the hardcoded fill="black" and force dimensions to make it inherit CSS size
         const modifiedSvg = text
@@ -101,8 +102,10 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
     setActiveCategories([]);
   };
 
+  const router = useRouter();
+  
   const handleProjectClick = (project: Project) => {
-    console.log('Navigate to project:', project.slug);
+    router.push(`/projects/${project.slug}`);
   };
 
   useEffect(() => {
@@ -144,7 +147,7 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSeeAllProjects}
                 style={{ 
-                  zIndex: initialProjects.length + 1,
+                  zIndex: 1000, // Much higher z-index to ensure it's always on top
                   fontFamily: 'Gabarito, sans-serif'
                 }}
               >
@@ -178,7 +181,7 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
                       key={`stack-${project.id}`}
                       className="absolute inset-0"
                       style={{ 
-                        zIndex: isInVisibleStack ? 4 - stackIndex : -1, // Hidden cards go behind
+                        zIndex: isInVisibleStack ? 10 - stackIndex : -1, // Stack cards have lower z-index than See All
                         pointerEvents: isInVisibleStack ? 'auto' : 'none',
                       }}
                       layoutId={project.id}
@@ -212,7 +215,7 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
                       <ProjectCard
                         project={project}
                         categories={categories}
-                        onClick={() => handleProjectClick(project)}
+                        onClick={isInVisibleStack ? undefined : () => handleProjectClick(project)}
                       />
                     </motion.div>
                   );
