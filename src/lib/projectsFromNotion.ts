@@ -30,13 +30,17 @@ export async function getProjectsFromNotion(): Promise<Project[]> {
         // Create slug from title
         const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         
-        // Get date from page
-        const date = getDateFromPage(page) || 'Date not specified';
+        // Get date from page (year)
+        const date = getDateFromPage(page);
+        
+        // Get secondary text
+        const secondaryText = getSecondaryTextFromPage(page);
         
         return {
           id: page.id,
           title,
           description,
+          secondaryText,
           image: image || '/images/test_image_1.jpg', // fallback image
           slug,
           date,
@@ -69,15 +73,18 @@ function getTitleFromPage(page: PageObjectResponse): string {
 }
 
 function getDescriptionFromPage(page: PageObjectResponse): string {
-  const possibleDescProps = ['description', 'Description', 'Summary', 'About'];
-  
-  for (const propName of possibleDescProps) {
-    const property = page.properties[propName];
-    if (property?.type === 'rich_text') {
-      return property.rich_text[0]?.plain_text || '';
-    }
+  const property = page.properties['Description'];
+  if (property?.type === 'rich_text') {
+    return property.rich_text[0]?.plain_text || '';
   }
-  
+  return '';
+}
+
+function getSecondaryTextFromPage(page: PageObjectResponse): string {
+  const property = page.properties['Secondary Text'];
+  if (property?.type === 'rich_text') {
+    return property.rich_text[0]?.plain_text || '';
+  }
   return '';
 }
 
@@ -179,24 +186,12 @@ function mapPropertyToCategory(propName: string): string | null {
   return mapping[propName.toLowerCase()] || null;
 }
 
-function getDateFromPage(page: PageObjectResponse): string | null {
-  const possibleDateProps = ['date', 'Date', 'Created', 'Published', 'Start Date'];
-  
-  for (const propName of possibleDateProps) {
-    const property = page.properties[propName];
-    if (property?.type === 'date' && property.date) {
-      return new Date(property.date.start).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long'
-      });
-    }
+function getDateFromPage(page: PageObjectResponse): string {
+  const property = page.properties['Year'];
+  if (property?.type === 'number' && property.number !== null) {
+    return property.number.toString();
   }
-  
-  // Fallback to last edited time
-  return new Date(page.last_edited_time).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long'
-  });
+  return new Date().getFullYear().toString(); // Fallback to current year
 }
 
 // Default categories - Updated with Figma design colors

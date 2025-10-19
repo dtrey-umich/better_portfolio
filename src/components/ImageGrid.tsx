@@ -20,7 +20,7 @@ interface ImageGridProps {
 
 export default function ImageGrid({ photos, layout = 'rows', columns = 2, spacing = 32 }: ImageGridProps) {
   return (
-    <div className="my-12">
+    <div className="w-full">
       <Gallery
         withCaption
         options={{ 
@@ -33,6 +33,8 @@ export default function ImageGrid({ photos, layout = 'rows', columns = 2, spacin
           photos={photos}
           columns={columns}
           spacing={spacing}
+          onClick={({ index }) => console.log(`Photo ${index} clicked`)}
+          componentsProps={{ containerProps: { style: { width: '100%' } } }}
           renderPhoto={({ photo, imageProps }) => (
             <Item
               original={photo.src}
@@ -49,8 +51,15 @@ export default function ImageGrid({ photos, layout = 'rows', columns = 2, spacin
                     alt={photo.alt}
                     width={photo.width}
                     height={photo.height}
-                    className="rounded-2xl cursor-pointer transition-transform duration-200 hover:scale-105 object-cover w-full h-full"
-                    style={{ ...(imageProps.style || {}), width: '100%', height: '100%' }}
+                    className="rounded-2xl cursor-pointer transition-transform duration-200 hover:scale-105 object-cover"
+                    style={{ 
+                      ...imageProps.style,
+                      width: '100%',
+                      height: '100%',
+                      maxWidth: '100%',
+                      objectFit: 'cover',
+                      aspectRatio: `${photo.width} / ${photo.height}`
+                    }}
                     onClick={open}
                   />
                 </div>

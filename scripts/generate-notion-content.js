@@ -25,20 +25,35 @@ async function getPageContent(pageId) {
   const blocks = await notion.blocks.children.list({
     block_id: pageId,
   });
+  // Log a sample of blocks to understand the structure
+  console.log('Sample block structure:', JSON.stringify(blocks.results[0], null, 2));
   return blocks.results;
 }
 
 async function generatePageContent(page, blocks) {
-  // Extract title from page properties
+  // Extract properties from page
   const title = page.properties['Page Name']?.title?.[0]?.plain_text || 'Untitled';
   const description = page.properties.Description?.rich_text?.[0]?.plain_text || '';
-  const date = page.properties.Date?.date?.start || new Date(page.created_time).toISOString().split('T')[0];
+  const secondaryText = page.properties['Secondary Text']?.rich_text?.[0]?.plain_text || '';
+  const year = page.properties.Year?.number?.toString() || new Date().getFullYear().toString();
   
   // Convert blocks to JSX
   let hasImageGrid = false;
   let imageGridPhotos = [];
   
-  const content = blocks.map(block => {
+  // Process each block and convert to JSX
+  const processBlocks = async (blocks) => {
+    const processedContent = [];
+    for (const block of blocks) {
+      const content = await generateBlockContent(block);
+      processedContent.push(content);
+    }
+    return processedContent.join('\n');
+  };
+  
+  const generateBlockContent = async (block) => {
+    console.log('Processing block type:', block.type);
+    
     switch (block.type) {
       case 'paragraph':
         return `<p>${block.paragraph.rich_text.map(text => text.plain_text).join('')}</p>`;
@@ -81,19 +96,220 @@ async function generatePageContent(page, blocks) {
                 height: Number(photo.height)
               }));
               
+              // Get layout parameters from the code if specified
+              const layoutMatch = code.match(/layout="([^"]+)"/);
+              const columnsMatch = code.match(/columns=\{(\d+)\}/);
+              const spacingMatch = code.match(/spacing=\{(\d+)\}/);
+
+              const layout = layoutMatch ? layoutMatch[1] : 'columns';
+              const columns = columnsMatch ? columnsMatch[1] : '2';
+              const spacing = spacingMatch ? spacingMatch[1] : '16';
+
               // Return the ImageGrid component inline where the code block was
-              return '<ImageGrid photos={photos} layout="columns" columns={3} />';
+              return `<ImageGrid photos={photos} layout="${layout}" columns={${columns}} spacing={${spacing}} />`;
             }
           } catch (e) {
             console.warn('Failed to parse ImageGrid photos:', e.message);
             imageGridPhotos = []; // Use empty array if parsing fails
           }
         }
+        // Check if this is embed-like code
+        else if (block.code.language === 'javascript' || 
+                 block.code.language === 'jsx' ||
+                 code.trim().startsWith('<iframe') ||
+                 code.trim().startsWith('<div') ||
+                 code.trim().startsWith('<blockquote')) {
+          // First check if it's already JSX
+          if (block.code.language === 'jsx') {
+            return code;
+          }
+          
+          // If this is a TikTok embed or similar that requires a script
+          if (code.includes('<script')) {
+            // Extract the embed code and script URL
+            const embedPart = code.substring(0, code.indexOf('<script'));
+            const scriptMatch = code.match(/<script[^>]+src="([^"]+)"[^>]*>/);
+            const scriptUrl = scriptMatch ? scriptMatch[1] : null;
+            
+            // Convert HTML to React-compatible JSX
+            let reactCode = embedPart;
+            
+            // Convert style attributes to React format
+            reactCode = reactCode.replace(
+              /style="([^"]*)"/g,
+              (match, styleString) => {
+                const styleObject = styleString.split(';')
+                  .filter(style => style.trim())
+                  .reduce((acc, style) => {
+                    const [property, value] = style.split(':').map(s => s.trim());
+                    // Convert kebab-case to camelCase
+                    const camelProperty = property.replace(/-([a-z])/g, g => g[1].toUpperCase());
+                    return `${acc}${acc ? ',' : ''}${camelProperty}:'${value}'`;
+                  }, '');
+                return `style={{${styleObject}}}`;
+              }
+            );
+
+            // Convert all HTML attributes to React format
+            const htmlToReactAttrs = {
+              // Common HTML attributes
+              'class': 'className',
+              'for': 'htmlFor',
+              'tabindex': 'tabIndex',
+              'readonly': 'readOnly',
+              'maxlength': 'maxLength',
+              'contenteditable': 'contentEditable',
+              // iframe-specific attributes
+              'frameborder': 'frameBorder',
+              'allowfullscreen': 'allowFullScreen',
+              'referrerpolicy': 'referrerPolicy',
+              'marginwidth': 'marginWidth',
+              'marginheight': 'marginHeight',
+              'srcdoc': 'srcDoc',
+              'allowtransparency': 'allowTransparency'
+            };
+            
+            // Replace all HTML attributes with their React equivalents
+            Object.entries(htmlToReactAttrs).forEach(([html, react]) => {
+              // Handle boolean attributes (without values)
+              reactCode = reactCode.replace(
+                new RegExp(`\\s${html}(\\s|>)`, 'g'),
+                ` ${react}={true}$1`
+              );
+              // Handle double quotes
+              reactCode = reactCode.replace(
+                new RegExp(`${html}="`, 'g'),
+                `${react}="`
+              );
+              // Handle single quotes
+              reactCode = reactCode.replace(
+                new RegExp(`${html}='`, 'g'),
+                `${react}='`
+              );
+              // Handle no quotes
+              reactCode = reactCode.replace(
+                new RegExp(`${html}=([^"'])`, 'g'),
+                `${react}=$1`
+              );
+            });
+            
+            // Add the Script component if we found a script URL
+            if (scriptUrl) {
+              return reactCode + `<Script src="${scriptUrl}" />`;
+            }
+            
+            return reactCode;
+          }
+          
+          // Handle regular embeds without scripts
+          let reactCode = code;
+          
+          // Convert style attributes to React format
+          reactCode = reactCode.replace(
+            /style="([^"]*)"/g,
+            (match, styleString) => {
+              const styleObject = styleString.split(';')
+                .filter(style => style.trim())
+                .reduce((acc, style) => {
+                  const [property, value] = style.split(':').map(s => s.trim());
+                  // Convert kebab-case to camelCase
+                  const camelProperty = property.replace(/-([a-z])/g, g => g[1].toUpperCase());
+                  return `${acc}${acc ? ',' : ''}${camelProperty}:'${value}'`;
+                }, '');
+              return `style={{${styleObject}}}`;
+            }
+          );
+
+          // Convert all HTML attributes to React format
+          const htmlToReactAttrs = {
+            // Common HTML attributes
+            'class': 'className',
+            'for': 'htmlFor',
+            'tabindex': 'tabIndex',
+            'readonly': 'readOnly',
+            'maxlength': 'maxLength',
+            'contenteditable': 'contentEditable',
+            // iframe-specific attributes
+            'frameborder': 'frameBorder',
+            'allowfullscreen': 'allowFullScreen',
+            'referrerpolicy': 'referrerPolicy',
+            'marginwidth': 'marginWidth',
+            'marginheight': 'marginHeight',
+            'srcdoc': 'srcDoc',
+            'allowtransparency': 'allowTransparency'
+          };
+          
+          // Replace all HTML attributes with their React equivalents
+          Object.entries(htmlToReactAttrs).forEach(([html, react]) => {
+            // Handle boolean attributes (without values)
+            reactCode = reactCode.replace(
+              new RegExp(`\\s${html}(\\s|>)`, 'g'),
+              ` ${react}={true}$1`
+            );
+            // Handle double quotes
+            reactCode = reactCode.replace(
+              new RegExp(`${html}="`, 'g'),
+              `${react}="`
+            );
+            // Handle single quotes
+            reactCode = reactCode.replace(
+              new RegExp(`${html}='`, 'g'),
+              `${react}='`
+            );
+            // Handle no quotes
+            reactCode = reactCode.replace(
+              new RegExp(`${html}=([^"'])`, 'g'),
+              `${react}=$1`
+            );
+          });
+          
+          return reactCode;
+        }
         return `<pre><code>${code}</code></pre>`;
+      case 'column_list':
+        // Get the column children from the block
+        const columnList = block;
+        if (columnList.has_children) {
+          // Fetch the children of the column_list
+          const children = await notion.blocks.children.list({
+            block_id: columnList.id,
+          });
+          
+          if (children.results && children.results.length > 0) {
+            // Process columns sequentially to maintain order
+            const columnDivs = [];
+            for (const column of children.results) {
+              if (column.type === 'column' && column.has_children) {
+                // Fetch the children of the column
+                const columnChildren = await notion.blocks.children.list({
+                  block_id: column.id,
+                });
+                
+                // Process each child in the column
+                const columnContent = [];
+                for (const child of columnChildren.results) {
+                  const content = await generateBlockContent(child);
+                  columnContent.push(content);
+                }
+
+                // All columns get equal width
+                columnDivs.push(`<div className="flex-1 w-full">${columnContent.join('\n')}</div>`);
+              }
+            }
+            
+            return `<div className="flex flex-col md:flex-row gap-4 my-4">
+              ${columnDivs.join('\n')}
+            </div>`;
+          }
+        }
+        return '';
       default:
         return '';
     }
-  }).join('\n');
+  };
+
+  // Process all blocks and get the content
+  const content = await processBlocks(blocks);
 
   // Create page file content
   const photosCode = hasImageGrid ? `const photos = ${JSON.stringify(imageGridPhotos, null, 2)};` : '';
@@ -101,6 +317,7 @@ async function generatePageContent(page, blocks) {
   return "'use client';\n\n" +
     "import { motion } from 'framer-motion';\n" +
     "import ImageGrid from '@/components/ImageGrid';\n" +
+    "import Script from 'next/script';\n" +
     (hasImageGrid ? photosCode + "\n\n" : "\n") +
     "export default function ProjectPage() {\n" +
     "  return (\n" +
@@ -111,8 +328,11 @@ async function generatePageContent(page, blocks) {
     "        animate={{ opacity: 1, y: 0 }}\n" +
     "        transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}\n" +
     "      >\n" +
-    "        <h1 className=\"text-4xl font-bold mb-4\">" + title + "</h1>\n" +
-    "        <p className=\"text-gray-600 mb-8\">" + date + "</p>\n" +
+    "        <h1 className=\"text-4xl font-bold mb-2\">" + title + "</h1>\n" +
+    "        <div className=\"flex justify-between items-center mb-8\">\n" +
+    "          <p className=\"text-xl\" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>" + secondaryText + "</p>\n" +
+    "          <p className=\"text-xl\" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>" + year + "</p>\n" +
+    "        </div>\n" +
     "        <div className=\"prose prose-lg max-w-none\">\n" +
     "          " + content + "\n" +
     "        </div>\n" +
@@ -154,14 +374,14 @@ async function main() {
         
         // Extract all properties from Notion
         const title = page.properties['Page Name']?.title?.[0]?.plain_text || 'Untitled';
-        const displayedName = page.properties['Displayed Name']?.rich_text?.[0]?.plain_text || '';
-        const urlSlug = page.properties['URL Slug']?.rich_text?.[0]?.plain_text || '';
+        const description = page.properties['Description']?.rich_text?.[0]?.plain_text || '';
+        const secondaryText = page.properties['Secondary Text']?.rich_text?.[0]?.plain_text || '';
         const roboticsTag = page.properties['Robotics Tag']?.number || 0;
         const publishStatus = page.properties['Publish Status']?.select?.name || '';
-        const lastEdited = new Date(page.last_edited_time).toISOString().split('T')[0];
+        const year = page.properties['Year']?.number?.toString() || new Date().getFullYear().toString();
         
-        // Use URL Slug if provided, otherwise generate from title
-        const slug = urlSlug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        // Generate slug from title
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         
         // Map all category tags to scores
         const categoryScores = {
@@ -183,9 +403,9 @@ async function main() {
         projectsMetadata.push({
           id: page.id,
           title,
-          displayedName,
-          description: displayedName || title, // Use displayed name as description if available
-          date: lastEdited,
+          description,
+          secondaryText,
+          date: year,
           slug,
           publishStatus,
           categoryScores,

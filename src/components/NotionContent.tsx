@@ -9,13 +9,15 @@ interface NotionContentProps {
   blocks: BlockObjectResponse[];
 }
 
-interface ColumnBlock {
-  id: string;
-  children?: BlockObjectResponse[];
+interface ColumnBlock extends Omit<BlockObjectResponse, 'type'> {
+  type: 'column';
+  column: {
+    children?: BlockObjectResponse[];
+  };
 }
 
-interface ColumnListBlock {
-  id: string;
+interface ColumnListBlock extends Omit<BlockObjectResponse, 'type'> {
+  type: 'column_list';
   column_list: {
     children?: ColumnBlock[];
   };
@@ -163,41 +165,31 @@ export function NotionContent({ blocks }: { blocks: BlockObjectResponse[] }) {
           </div>
         );
       case 'column_list':
-        console.log('Processing column list:', JSON.stringify(block, null, 2));
-        const columnList = block as any;
-        if (columnList.column_list?.children) {
-          console.log('Column list children:', JSON.stringify(columnList.column_list.children, null, 2));
-          return (
-            <div className="flex flex-col md:flex-row gap-4 my-4">
-              {columnList.column_list.children.map((column: any, index: number) => {
-                console.log('Processing column:', JSON.stringify(column, null, 2));
-                return (
-                  <div key={index} className="flex-1">
-                    {column.children?.map((child: BlockObjectResponse, childIndex: number) => {
-                      console.log('Processing column child:', JSON.stringify(child, null, 2));
-                      return <div key={childIndex}>{renderBlock(child)}</div>;
-                    })}
+        const columnList = block as ColumnListBlock;
+        return (
+          <div className="flex flex-col md:flex-row gap-4 my-4">
+            {columnList.column_list.children?.map((column, index) => (
+              <div key={column.id || index} className="flex-1">
+                {column.column?.children?.map((child: BlockObjectResponse, childIndex) => (
+                  <div key={child.id || childIndex}>
+                    {renderBlock(child)}
                   </div>
-                );
-              })}
-            </div>
-          );
-        }
-        return null;
+                ))}
+              </div>
+            ))}
+          </div>
+        );
       case 'column':
-        console.log('Processing column:', JSON.stringify(block, null, 2));
-        const column = block as any;
-        if (column.children) {
-          console.log('Column children:', JSON.stringify(column.children, null, 2));
-          return (
-            <div className="flex-1">
-              {column.children.map((child: BlockObjectResponse, index: number) => (
-                <div key={index}>{renderBlock(child)}</div>
-              ))}
-            </div>
-          );
-        }
-        return null;
+        const column = block as ColumnBlock;
+        return (
+          <div className="flex-1">
+            {column.column?.children?.map((child: BlockObjectResponse, index) => (
+              <div key={child.id || index}>
+                {renderBlock(child)}
+              </div>
+            ))}
+          </div>
+        );
       case 'code': {
         const codeText = block.code.rich_text.map(rt => rt.plain_text).join('');
         

@@ -147,7 +147,7 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSeeAllProjects}
                 style={{ 
-                  zIndex: 1000, // Much higher z-index to ensure it's always on top
+                  zIndex: 40, // High enough to be above other cards but below navigation
                   fontFamily: 'Gabarito, sans-serif'
                 }}
               >

@@ -8,6 +8,7 @@ export interface Project {
   id: string;
   title: string;
   description: string;
+  secondaryText: string;
   image: string;
   slug: string;
   date: string; // Added date field
@@ -127,15 +128,13 @@ export function ProjectCard({ project, categories, onClick }: ProjectCardProps) 
           </div>
         </div>
         
-        {/* Description */}
+          {/* Description */}
         <p 
           className="text-lg text-gray-700 mb-6 leading-relaxed flex-1"
           style={{ fontFamily: 'Gabarito, sans-serif' }}
         >
           {project.description}
-        </p>
-        
-        {/* Bottom row with "Click to read more" and category icons */}
+        </p>        {/* Bottom row with "Click to read more" and category icons */}
         <div className="flex justify-between items-center">
           {/* Click to read more */}
           {onClick && (
