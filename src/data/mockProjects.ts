@@ -5,7 +5,7 @@ export const mockProjects: Project[] = [
     id: 'neural-net-visualizer',
     title: 'Neural Network Visualizer',
     description: 'Interactive web application for visualizing deep learning architectures and training processes in real-time.',
-    image: '/images/test_image_1.jpg',
+    image: '/better_portfolio/images/test_image_1.jpg',
     slug: 'neural-net-visualizer',
     date: 'March 2024',
     categories: ['research', 'software'],
