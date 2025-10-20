@@ -10,9 +10,10 @@
     "generate": "node scripts/generate-notion-content.js"
   },
   "dependencies": {
-    "@notionhq/client": "^3.1.3",
+    "@notionhq/client": "^2.2.14",
     "framer-motion": "^12.23.12",
     "next": "15.3.3",
+    "node-fetch": "2.6.7",
     "photoswipe": "^5.4.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -25,9 +26,12 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "axios": "^1.12.2",
+    "cheerio": "^1.1.2",
     "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
+    "puppeteer": "^24.25.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

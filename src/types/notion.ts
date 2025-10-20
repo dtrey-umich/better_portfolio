@@ -66,5 +66,10 @@ export interface NotionPage {
         };
       }>;
     };
+    "Publish Status": {
+      select: {
+        name: string;
+      };
+    };
   };
 } 

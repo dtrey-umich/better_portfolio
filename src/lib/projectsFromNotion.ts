@@ -36,6 +36,9 @@ export async function getProjectsFromNotion(): Promise<Project[]> {
         // Get secondary text
         const secondaryText = getSecondaryTextFromPage(page);
         
+        // Get publish status
+        const publishStatus = getPublishStatusFromPage(page);
+        
         return {
           id: page.id,
           title,
@@ -45,7 +48,8 @@ export async function getProjectsFromNotion(): Promise<Project[]> {
           slug,
           date,
           categories,
-          categoryScores
+          categoryScores,
+          publishStatus
         };
       });
   } catch (error) {
@@ -192,6 +196,14 @@ function getDateFromPage(page: PageObjectResponse): string {
     return property.number.toString();
   }
   return new Date().getFullYear().toString(); // Fallback to current year
+}
+
+function getPublishStatusFromPage(page: PageObjectResponse): string {
+  const property = page.properties['Publish Status'];
+  if (property?.type === 'select' && property.select) {
+    return property.select.name; // Preserve original case
+  }
+  return 'Not Published'; // Default to not published
 }
 
 // Default categories - Updated with Figma design colors

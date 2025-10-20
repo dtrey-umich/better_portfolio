@@ -9,8 +9,17 @@ try {
   console.log('No .env.local file found, assuming we are in CI environment');
 }
 
+if (!process.env.NOTION_API_KEY) {
+  throw new Error('NOTION_API_KEY environment variable is required');
+}
+
+if (!process.env.NOTION_DATABASE_ID) {
+  throw new Error('NOTION_DATABASE_ID environment variable is required');
+}
+
 const notion = new Client({
   auth: process.env.NOTION_API_KEY,
+  notionVersion: '2022-06-28'
 });
 
 async function getDatabase() {
@@ -315,6 +324,7 @@ async function generatePageContent(page, blocks) {
   const photosCode = hasImageGrid ? `const photos = ${JSON.stringify(imageGridPhotos, null, 2)};` : '';
   
   return "'use client';\n\n" +
+    "import React from 'react';\n" +
     "import { motion } from 'framer-motion';\n" +
     "import ImageGrid from '@/components/ImageGrid';\n" +
     "import Script from 'next/script';\n" +
@@ -377,7 +387,7 @@ async function main() {
         const description = page.properties['Description']?.rich_text?.[0]?.plain_text || '';
         const secondaryText = page.properties['Secondary Text']?.rich_text?.[0]?.plain_text || '';
         const roboticsTag = page.properties['Robotics Tag']?.number || 0;
-        const publishStatus = page.properties['Publish Status']?.select?.name || '';
+        const publishStatus = page.properties['Publish Status']?.select?.name || 'Not Published';
         const year = page.properties['Year']?.number?.toString() || new Date().getFullYear().toString();
         
         // Generate slug from title
@@ -422,6 +432,22 @@ async function main() {
         const content = await generatePageContent(page, blocks);
         const filePath = path.join(pageDir, 'page.tsx');
         await fs.writeFile(filePath, content);
+        
+        // Update the URL field in Notion
+        const publicUrl = `/projects/${slug}`;
+        try {
+          await notion.pages.update({
+            page_id: page.id,
+            properties: {
+              'url': {
+                url: publicUrl
+              }
+            }
+          });
+          console.log('Updated Notion URL field for ' + title + ' to: ' + publicUrl);
+        } catch (urlUpdateError) {
+          console.error('Failed to update URL in Notion for ' + title + ':', urlUpdateError);
+        }
         
         console.log('Successfully generated page at: ' + filePath);
       } catch (pageError) {

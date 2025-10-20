@@ -8,13 +8,13 @@ export interface Project {
   id: string;
   title: string;
   description: string;
-  secondaryText: string;
   image: string;
   slug: string;
-  date: string; // Added date field
-  categories: string[]; // category IDs
-  categoryScores: Record<string, number>; // category ID -> score
-}
+  date: string;
+  categories: string[];
+  categoryScores: Record<string, number>;
+  publishStatus: string;
+} 
 
 interface ProjectCardProps {
   project: Project;

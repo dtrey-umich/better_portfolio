@@ -61,23 +61,25 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
   const [isTransitioning, setIsTransitioning] = useState(false);
   
   // Simple: calculate which projects should be in gallery
-  const galleryProjects = showAllProjects 
-    ? initialProjects
-    : activeCategories.length === 0 
-      ? []
-      : initialProjects.filter(project => {
-          const totalScore = activeCategories.reduce((sum, categoryId) => {
-            return sum + (project.categoryScores[categoryId] || 0);
-          }, 0);
-          return totalScore > 0;
-        }).sort((a, b) => {
+  const galleryProjects = initialProjects
+    .filter(project => project.publishStatus === 'Published') // Always filter for published projects first
+    .filter(project => {
+      if (showAllProjects) return true;
+      if (activeCategories.length === 0) return false;
+      const totalScore = activeCategories.reduce((sum, categoryId) => {
+        return sum + (project.categoryScores[categoryId] || 0);
+      }, 0);
+      return totalScore > 0;
+    }).sort((a, b) => {
           const scoreA = activeCategories.reduce((sum, categoryId) => sum + (a.categoryScores[categoryId] || 0), 0);
           const scoreB = activeCategories.reduce((sum, categoryId) => sum + (b.categoryScores[categoryId] || 0), 0);
           return scoreB - scoreA;
         });
 
   // Simple: calculate which projects should be in stack (not in gallery)
-  const stackProjects = initialProjects.filter(project => !galleryProjects.includes(project));
+  const stackProjects = initialProjects
+    .filter(project => project.publishStatus === 'Published') // Only show published projects in stack
+    .filter(project => !galleryProjects.includes(project));
   
   // Current active category for determining layout
   const currentCategory = activeCategories.length > 0 ? activeCategories[0] : null;

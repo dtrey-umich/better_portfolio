@@ -18,10 +18,14 @@ export function ProjectGallery({
   onProjectClick 
 }: ProjectGalleryProps) {
   
-  // Filter and sort projects based on active categories
+  // Filter and sort projects based on active categories and publish status
   const filteredProjects = projects
     .filter(project => {
-      if (activeCategories.length === 0) return false;
+      // Only show published projects in the gallery
+      if (project.publishStatus !== 'Published') return false;
+      
+      // If no categories are active, show all published projects
+      if (activeCategories.length === 0) return true;
       
       // Calculate total score for active categories
       const totalScore = activeCategories.reduce((sum, categoryId) => {
@@ -93,7 +97,7 @@ export function ProjectGallery({
       </AnimatePresence>
       
       {/* Empty state */}
-      {activeCategories.length > 0 && filteredProjects.length === 0 && (
+      {filteredProjects.length === 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
