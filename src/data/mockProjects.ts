@@ -17,7 +17,8 @@ export const mockProjects: Project[] = [
       sculpture: 0.0,
       videography: 0.0,
       play: 0.0
-    }
+    },
+    publishStatus: 'Published'
   },
   {
     id: 'robotic-arm-controller',
@@ -35,7 +36,8 @@ export const mockProjects: Project[] = [
       sculpture: 0.0,
       videography: 0.0,
       play: 0.0
-    }
+    },
+    publishStatus: 'Published'
   },
   {
     id: 'kinetic-sculpture',
@@ -53,7 +55,8 @@ export const mockProjects: Project[] = [
       sculpture: 1.0,
       videography: 0.0,
       play: 0.0
-    }
+    },
+    publishStatus: 'Published'
   },
   {
     id: 'documentary-series',
@@ -71,7 +74,8 @@ export const mockProjects: Project[] = [
       sculpture: 0.0,
       videography: 1.0,
       play: 0.0
-    }
+    },
+    publishStatus: 'Published'
   },
   {
     id: 'game-physics-engine',
@@ -89,7 +93,8 @@ export const mockProjects: Project[] = [
       sculpture: 0.0,
       videography: 0.0,
       play: 0.9
-    }
+    },
+    publishStatus: 'Published'
   },
   {
     id: 'ar-prototyping-tool',
@@ -107,7 +112,8 @@ export const mockProjects: Project[] = [
       sculpture: 0.0,
       videography: 0.0,
       play: 0.6
-    }
+    },
+    publishStatus: 'Published'
   },
   {
     id: 'drone-swarm-ai',
@@ -125,7 +131,8 @@ export const mockProjects: Project[] = [
       sculpture: 0.0,
       videography: 0.0,
       play: 0.0
-    }
+    },
+    publishStatus: 'Published'
   },
   {
     id: 'generative-art-installation',
@@ -143,7 +150,8 @@ export const mockProjects: Project[] = [
       sculpture: 0.9,
       videography: 0.0,
       play: 0.0
-    }
+    },
+    publishStatus: 'Published'
   },
   {
     id: 'vr-music-experience',
@@ -161,7 +169,8 @@ export const mockProjects: Project[] = [
       sculpture: 0.0,
       videography: 0.0,
       play: 0.9
-    }
+    },
+    publishStatus: 'Published'
   },
   {
     id: 'biomedical-device',
@@ -179,6 +188,7 @@ export const mockProjects: Project[] = [
       sculpture: 0.0,
       videography: 0.0,
       play: 0.0
-    }
+    },
+    publishStatus: 'Published'
   }
 ];

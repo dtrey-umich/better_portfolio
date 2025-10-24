@@ -8,6 +8,7 @@ export interface Project {
   id: string;
   title: string;
   description: string;
+  secondaryText?: string;
   image: string;
   slug: string;
   date: string;
