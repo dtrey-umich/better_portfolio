@@ -539,6 +539,24 @@
         "play": 0
       },
       "image": "/better_portfolio/project-placeholder.jpg"
+    },
+    {
+      "id": "2c602671-1c99-8094-8d4d-d39aded3135d",
+      "title": "Musical Motors",
+      "description": "",
+      "secondaryText": "",
+      "date": "2025",
+      "slug": "musical-motors",
+      "publishStatus": "Not Published",
+      "categoryScores": {
+        "research": 0,
+        "robotics": 0,
+        "software": 0,
+        "sculpture": 0,
+        "videography": 0,
+        "play": 0
+      },
+      "image": "/better_portfolio/project-placeholder.jpg"
     }
   ]
 }
