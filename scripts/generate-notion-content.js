@@ -447,7 +447,7 @@ async function generatePageContent(page, blocks) {
   
   // Build imports based on what's needed
   let imports = "'use client';\n\n" +
-    "import React from 'react';\n" +
+    "import React, { Suspense } from 'react';\n" +
     "import { motion } from 'framer-motion';\n" +
     "import ImageGrid from '@/components/ImageGrid';\n" +
     "import Script from 'next/script';\n";
@@ -462,7 +462,7 @@ async function generatePageContent(page, blocks) {
   if (hasNotionLinks) {
     internalLinkComponent = `
 // Component to handle internal links with query parameter preservation
-function InternalLink({ href, children }) {
+function InternalLink({ href, children }: { href: string; children: React.ReactNode }) {
   const searchParams = useSearchParams();
   const query = searchParams.toString();
   const fullHref = query ? \`\${href}?\${query}\` : href;
@@ -475,27 +475,57 @@ function InternalLink({ href, children }) {
   return imports +
     (allImageGridPhotos.length > 0 ? photosCode + "\n\n" : "\n") +
     internalLinkComponent +
-    "export default function ProjectPage() {\n" +
-    "  return (\n" +
-    "    <div className=\"pt-32 pb-16 min-h-screen\">\n" +
-    "      <motion.div\n" +
-    "        className=\"max-w-4xl mx-auto px-8\"\n" +
-    "        initial={{ opacity: 0, y: 20 }}\n" +
-    "        animate={{ opacity: 1, y: 0 }}\n" +
-    "        transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}\n" +
-    "      >\n" +
-    "        <h1 className=\"text-4xl font-bold mb-2\">" + title + "</h1>\n" +
-    "        <div className=\"flex justify-between items-center mb-8\">\n" +
-    "          <p className=\"text-xl\" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>" + secondaryText + "</p>\n" +
-    "          <p className=\"text-xl\" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>" + year + "</p>\n" +
-    "        </div>\n" +
-    "        <div className=\"prose prose-lg max-w-none\">\n" +
-    "          " + content + "\n" +
-    "        </div>\n" +
-    "      </motion.div>\n" +
-    "    </div>\n" +
-    "  );\n" +
-    "}";
+    (hasNotionLinks ? `
+function ProjectContent() {
+  return (
+    <div className="pt-32 pb-16 min-h-screen">
+      <motion.div
+        className="max-w-4xl mx-auto px-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
+      >
+        <h1 className="text-4xl font-bold mb-2">${title}</h1>
+        <div className="flex justify-between items-center mb-8">
+          <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>${secondaryText}</p>
+          <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>${year}</p>
+        </div>
+        <div className="prose prose-lg max-w-none">
+          ${content}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+export default function ProjectPage() {
+  return (
+    <Suspense fallback={<div className="pt-32 pb-16 min-h-screen" />}>
+      <ProjectContent />
+    </Suspense>
+  );
+}` : `
+export default function ProjectPage() {
+  return (
+    <div className="pt-32 pb-16 min-h-screen">
+      <motion.div
+        className="max-w-4xl mx-auto px-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
+      >
+        <h1 className="text-4xl font-bold mb-2">${title}</h1>
+        <div className="flex justify-between items-center mb-8">
+          <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>${secondaryText}</p>
+          <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>${year}</p>
+        </div>
+        <div className="prose prose-lg max-w-none">
+          ${content}
+        </div>
+      </motion.div>
+    </div>
+  );
+}`);
 }
 
 async function main() {
