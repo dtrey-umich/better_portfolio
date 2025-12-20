@@ -6,7 +6,7 @@ import { CategoryButton, Category } from '@/components/CategoryButton';
 import { ProjectCard, Project } from '@/components/ProjectCard';
 import { IconSprite } from '@/components/IconSprite';
 import { InstructionalText } from '@/components/InstructionalText';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
 
 // Small icon component for the "See All Projects" card
@@ -54,17 +54,48 @@ interface HomePageClientProps {
 }
 
 export function HomePageClient({ initialProjects, categories }: HomePageClientProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeCategories, setActiveCategories] = useState<string[]>([]);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [isStackHovered, setIsStackHovered] = useState(false);
-  const [showAllProjects, setShowAllProjects] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  
+  const allCategories = ['research', 'robotics', 'software', 'sculpture', 'videography', 'play'];
+  
+  // Load active categories from URL on mount
+  useEffect(() => {
+    const categoriesParam = searchParams.get('categories');
+    
+    if (categoriesParam) {
+      const cats = categoriesParam.split(',').filter(cat => cat.trim());
+      setActiveCategories(cats);
+    }
+  }, [searchParams]);
+  
+  // Update URL when active categories change
+  useEffect(() => {
+    const updateUrl = () => {
+      const params = new URLSearchParams();
+      
+      if (activeCategories.length > 0) {
+        params.set('categories', activeCategories.join(','));
+      }
+      
+      const queryString = params.toString();
+      const newUrl = queryString ? `/?${queryString}` : '/';
+      router.push(newUrl, { scroll: false });
+    };
+    
+    // Use a small timeout to avoid too many updates
+    const timeout = setTimeout(updateUrl, 100);
+    return () => clearTimeout(timeout);
+  }, [activeCategories, router]);
   
   // Simple: calculate which projects should be in gallery
   const galleryProjects = initialProjects
     .filter(project => project.publishStatus === 'Published') // Always filter for published projects first
     .filter(project => {
-      if (showAllProjects) return true;
       if (activeCategories.length === 0) return false;
       const totalScore = activeCategories.reduce((sum, categoryId) => {
         return sum + (project.categoryScores[categoryId] || 0);
@@ -91,7 +122,6 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
         ? prev.filter(id => id !== categoryId)
         : [...prev, categoryId]
     );
-    setShowAllProjects(false);
     
     // Clear transitioning state after animation completes
     setTimeout(() => {
@@ -100,14 +130,22 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
   };
 
   const handleSeeAllProjects = () => {
-    setShowAllProjects(true);
-    setActiveCategories([]);
+    setActiveCategories(allCategories);
   };
-
-  const router = useRouter();
   
   const handleProjectClick = (project: Project) => {
-    router.push(`/projects/${project.slug}`);
+    const params = new URLSearchParams();
+    
+    if (activeCategories.length > 0) {
+      params.set('categories', activeCategories.join(','));
+    }
+    
+    const queryString = params.toString();
+    const url = queryString 
+      ? `/projects/${project.slug}?${queryString}`
+      : `/projects/${project.slug}`;
+    
+    router.push(url);
   };
 
   useEffect(() => {

@@ -49,6 +49,55 @@ async function generatePageContent(page, blocks) {
   // Convert blocks to JSX
   let imageGridCounter = 0;
   let allImageGridPhotos = [];
+  let hasNotionLinks = false;
+  
+  // Helper function to check if a URL is a Notion internal link and extract page ID
+  const isNotionDatabaseLink = (href) => {
+    // Notion links can have various formats:
+    // - https://www.notion.so/xxxxx-xxxxx-xxxxx (with hyphens)
+    // - https://notion.so/page-name-xxxxx (UUID at the end)
+    // - /xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (just the page ID without domain)
+    
+    // Try to extract from full URLs first
+    let notionPageIdMatch = href.match(/notion\.so\/(?:[^\s]*-)([a-f0-9]{32}|[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
+    
+    // If not found, check if it's a bare UUID (with or without leading slash)
+    if (!notionPageIdMatch) {
+      notionPageIdMatch = href.match(/^\/([a-f0-9]{32})$/i);
+    }
+    
+    if (notionPageIdMatch) {
+      // Normalize to UUID format with hyphens
+      let pageId = notionPageIdMatch[1];
+      if (!pageId.includes('-')) {
+        // Convert xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx to xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        pageId = pageId.replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, '$1-$2-$3-$4-$5');
+      }
+      return pageId;
+    }
+    return null;
+  };
+  
+  // Map Notion page IDs to project slugs by querying the database
+  const notionPageIdToSlug = {};
+  const buildNotionPageMap = async () => {
+    try {
+      const allPages = await notion.databases.query({
+        database_id: process.env.NOTION_DATABASE_ID
+      });
+      
+      for (const page of allPages.results) {
+        const pageTitle = page.properties['Page Name']?.title?.[0]?.plain_text || '';
+        const slug = pageTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        notionPageIdToSlug[page.id] = slug;
+      }
+    } catch (e) {
+      console.warn('Failed to build Notion page map:', e.message);
+    }
+  };
+  
+  // Build the map before processing content
+  await buildNotionPageMap();
   
   // Helper function to process rich text with links and formatting
   const processRichText = (richTextArray) => {
@@ -56,6 +105,10 @@ async function generatePageContent(page, blocks) {
       let content = text.plain_text;
       const hasNonDefaultColor = text.annotations.color && text.annotations.color !== 'default';
       const hasLink = text.href;
+      
+      // Check if this is a Notion database link
+      const notionPageId = hasLink ? isNotionDatabaseLink(hasLink) : null;
+      const isInternalNotionLink = notionPageId && notionPageIdToSlug[notionPageId];
       
       // Determine the color and font
       let colorStyle = '';
@@ -94,7 +147,15 @@ async function generatePageContent(page, blocks) {
       
       // Apply link if present
       if (hasLink) {
-        content = `<a href="${text.href}" target="_blank" rel="noopener noreferrer">${content}</a>`;
+        if (isInternalNotionLink) {
+          // For internal Notion links, mark them for dynamic parameter handling
+          hasNotionLinks = true;
+          const slug = notionPageIdToSlug[notionPageId];
+          content = `<InternalLink href="/projects/${slug}">${content}</InternalLink>`;
+        } else {
+          // External links open in new tab
+          content = `<a href="${text.href}" target="_blank" rel="noopener noreferrer">${content}</a>`;
+        }
       }
       
       return content;
@@ -384,12 +445,36 @@ async function generatePageContent(page, blocks) {
       ).join('\n') 
     : '';
   
-  return "'use client';\n\n" +
+  // Build imports based on what's needed
+  let imports = "'use client';\n\n" +
     "import React from 'react';\n" +
     "import { motion } from 'framer-motion';\n" +
     "import ImageGrid from '@/components/ImageGrid';\n" +
-    "import Script from 'next/script';\n" +
+    "import Script from 'next/script';\n";
+  
+  if (hasNotionLinks) {
+    imports += "import Link from 'next/link';\n" +
+      "import { useSearchParams } from 'next/navigation';\n";
+  }
+  
+  // Add InternalLink component if needed
+  let internalLinkComponent = '';
+  if (hasNotionLinks) {
+    internalLinkComponent = `
+// Component to handle internal links with query parameter preservation
+function InternalLink({ href, children }) {
+  const searchParams = useSearchParams();
+  const query = searchParams.toString();
+  const fullHref = query ? \`\${href}?\${query}\` : href;
+  return <Link href={fullHref}>{children}</Link>;
+}
+
+`;
+  }
+  
+  return imports +
     (allImageGridPhotos.length > 0 ? photosCode + "\n\n" : "\n") +
+    internalLinkComponent +
     "export default function ProjectPage() {\n" +
     "  return (\n" +
     "    <div className=\"pt-32 pb-16 min-h-screen\">\n" +
@@ -434,6 +519,14 @@ async function main() {
     console.log('Fetching database content...');
     let pages = await getDatabase();
     console.log('Found ' + pages.length + ' pages in database');
+    
+    // Filter to only Published and Hidden pages
+    const beforeFilterCount = pages.length;
+    pages = pages.filter(page => {
+      const publishStatus = page.properties['Publish Status']?.select?.name || 'Not Published';
+      return publishStatus === 'Published' || publishStatus === 'Hidden';
+    });
+    console.log('Filtered to ' + pages.length + ' pages (Published or Hidden) from ' + beforeFilterCount + ' total');
     
     // Filter to specific page if slug provided
     if (targetSlug) {
@@ -500,20 +593,24 @@ async function main() {
           '/better_portfolio/images/' + imageFilename : 
           '/better_portfolio/project-placeholder.jpg';
 
-        // Add to metadata
-        projectsMetadata.push({
-          id: page.id,
-          title,
-          description,
-          secondaryText,
-          date: year,
-          slug,
-          publishStatus,
-          categoryScores,
-          image: imageUrl
-        });
+        // Only add to metadata if Published (not Hidden)
+        if (publishStatus === 'Published') {
+          projectsMetadata.push({
+            id: page.id,
+            title,
+            description,
+            secondaryText,
+            date: year,
+            slug,
+            publishStatus,
+            categoryScores,
+            image: imageUrl
+          });
+        } else {
+          console.log('Skipping metadata for Hidden page: ' + title);
+        }
         
-        console.log('Generating content for: ' + title + ' (' + slug + ')');
+        console.log('Generating content for: ' + title + ' (' + slug + ') [' + publishStatus + ']');
         
         // Create directory for this page
         const pageDir = path.join(pagesDir, slug);

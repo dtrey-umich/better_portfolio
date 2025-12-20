@@ -46,10 +46,10 @@ const CategoryIcon = ({ category, isActive }: { category: Category; isActive: bo
   
   return (
     <div 
-      className={`w-10 h-10 transition-all duration-200 ${isActive ? 'text-white' : ''}`}
+      className={`w-10 h-10 transition-all duration-200`}
       style={{ 
-        color: isActive ? 'white' : category.color,
-        fill: isActive ? 'white' : category.color
+        color: category.color,
+        fill: category.color
       }}
       dangerouslySetInnerHTML={{ __html: svgContent }}
     />
@@ -68,12 +68,13 @@ export function CategoryButton({
         w-[240px] h-20 rounded-2xl font-medium text-lg transition-all duration-200 border
         flex items-center justify-between px-6
         ${isActive 
-          ? 'text-white border-transparent shadow-lg' 
-          : 'text-black bg-white border-gray-300 hover:border-gray-400 shadow-lg'
+          ? 'border-2 shadow-md' 
+          : 'bg-white border border-gray-300 hover:border-gray-400 shadow-lg'
         }
       `}
       style={{
-        backgroundColor: isActive ? category.color : '#FFFFFF',
+        backgroundColor: isActive ? `${category.color}15` : '#FFFFFF',
+        borderColor: isActive ? category.color : '#d1d5db',
         fontFamily: 'Gabarito, sans-serif',
       }}
       onClick={onToggle}

@@ -2,8 +2,13 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 export function InstructionalText() {
+  const searchParams = useSearchParams();
+  const query = searchParams.toString();
+  const principlesHref = query ? `/principles?${query}` : '/principles';
+  
   return (
     <motion.div
       className="text-left mb-12 relative"
@@ -25,7 +30,7 @@ export function InstructionalText() {
         style={{ fontFamily: 'Trey Handwrite, cursive' }}
       >
         For more information, see{' '}
-        <Link href="/principles">
+        <Link href={principlesHref}>
           <motion.span
             className="text-[#97CCF6] hover:text-[#7BB8E8] cursor-pointer no-underline"
             whileHover={{ scale: 1.05 }}

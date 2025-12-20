@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import React from 'react';
+import { useSearchParams } from 'next/navigation';
 
 // Icon component that uses your original SVG files with color overlay
 const CategoryIcon = ({ principleId, color }: { principleId: string; color: string }) => {
@@ -81,6 +82,10 @@ const principles = [
   }
 ];
 export default function Principles() {
+  const searchParams = useSearchParams();
+  const categoriesParam = searchParams.get('categories');
+  const activeCategories = categoriesParam ? categoriesParam.split(',').filter(cat => cat.trim()) : [];
+  
   return (
     <div 
       className="min-h-screen bg-white"
@@ -108,10 +113,18 @@ export default function Principles() {
           </motion.p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {principles.map((principle, index) => (
+            {principles.map((principle, index) => {
+              const isActive = activeCategories.includes(principle.id);
+              
+              return (
               <motion.div
                 key={principle.title}
-                className="bg-white border border-gray-200 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
+                className={`bg-white border rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 ${
+                  isActive 
+                    ? 'border-2' 
+                    : 'border border-gray-200'
+                }`}
+                style={isActive ? { borderColor: principle.color, backgroundColor: `${principle.color}15` } : {}}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ 
@@ -136,7 +149,8 @@ export default function Principles() {
                   </div>
                 </div>
               </motion.div>
-            ))}
+              );
+            })}
           </div>
         </motion.div>
       </div>

@@ -4,6 +4,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import ImageGrid from '@/components/ImageGrid';
 import Script from 'next/script';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 const photos1 = [
   {
     "src": "/better_portfolio/images/test_image_3.jpg",
@@ -31,6 +33,15 @@ const photos1 = [
   }
 ];
 
+
+// Component to handle internal links with query parameter preservation
+function InternalLink({ href, children }) {
+  const searchParams = useSearchParams();
+  const query = searchParams.toString();
+  const fullHref = query ? `${href}?${query}` : href;
+  return <Link href={fullHref}>{children}</Link>;
+}
+
 export default function ProjectPage() {
   return (
     <div className="pt-32 pb-16 min-h-screen">
@@ -46,7 +57,7 @@ export default function ProjectPage() {
           <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2023</p>
         </div>
         <div className="prose prose-lg max-w-none">
-          <p className="mb-6">Good morning, it’s quarter to 8 and I am mostly awake. This morning, I went for a little walk around Paris by myself because I went to sleep at 6pm and was awake at 6am before everyone else. Actually, I was awake at 5:30 and I did my best to at least stay down until 6am. But, when the hour came, I did not hesitate to rise, get dressed, brush my teeth, and get out the door. The hotel room Austin and I are in is small. There’s barely enough room for the two of us and our bags so figuring out how to find my clothes in the dark while also not tripping over the me-sized snowboard bag in the room was certainly a trick. Thankfully, Austin is a heavy sleeper. I was able to get out of the door without a hitch.</p>
+          <p className="mb-6">Good morning,<InternalLink href="/projects/example-page-2"><span className="transition-opacity duration-200 hover:opacity-60" style={{color: "#5B9BD5"}}> it’s quarter to 8 and I am mostly awake</span></InternalLink>. This morning, I went for a little walk around Paris by myself because I went to sleep at 6pm and was awake at 6am before everyone else. Actually, I was awake at 5:30 and I did my best to at least stay down until 6am. But, when the hour came, I did not hesitate to rise, get dressed, brush my teeth, and get out the door. The hotel room Austin and I are in is small. There’s barely enough room for the two of us and our bags so figuring out how to find my clothes in the dark while also not tripping over the me-sized snowboard bag in the room was certainly a trick. Thankfully, Austin is a heavy sleeper. I was able to get out of the door without a hitch.</p>
 <div className="my-8"><ImageGrid photos={photos1} layout="columns" columns={3} spacing={16} /></div>
 <p className="mb-6"><span style={{color: "#EC6F6B", fontFamily: "Trey Handwrite, cursive"}}>At 5:30 am in Paris, nothing is open because why would anything be</span>. At 6 am, the first cafes in the city begin to open their doors, at least according to google maps. I made my way down the stairs of the hotel and out onto the city street. The nearest open cafe is a 6 minute walk away, in the direction opposite to the arc. It’s dark out, the sun has not come up yet but the city lights give an everlasting glow to the quiet streets. I begin to walk in the direction of the cafe. I would be afraid of this new city but at this hour, the only people who are awake in Paris are either working or on their way to work. My presence barely registers for most people and I am able to slip from street to street without stirring up any trouble. The cafe was in what seemed to be a small market close to the main walkways of Paris.</p>
 <p className="mb-6">In the market, I noted that while there were several people waiting for stores and produce stands to open, most of the people on the street worked for those stands. The bustle of the street was almost entirely composed of workers laying out fresh fruit and vegetables for the day’s tourists to buy. Trucks came in and out of the closed of street to load the stores with their much needed produce and consumable goods. The cafe stood at the corner of this quiet bustle. The people inside were clearly just beginning to open, sweeping the floors, and setting tables out. Inside, there the customers included a handful of the workers from the street market. And, it was in the moment, contemplating walking in and ordering something that I felt a shred of fear. While I was able to slip unnoticed along the streets, walking into a cafe at this hour was asking to be noticed. I continued down the street instead.</p>
