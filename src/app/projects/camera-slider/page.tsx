@@ -20,7 +20,7 @@ export default function ProjectPage() {
           <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2025</p>
         </div>
         <div className="prose prose-lg max-w-none">
-          <p>Additional Contributors: None
+          <p className="mb-6">Additional Contributors: None
 
 This project is intended to be an open-source and budget-friendly way to take motion control photography and videography using easily accessible electronics and hardware components. The design features a variable-length rail and lightweight carriage that can laterally move and rotate cameras of varying sizes and adapt to different shoot settings. Throughout development, two prototype assemblies were created in Fusion 360, prioritizing ease of manufacture and modularity. Inexpensive and easy-to-use electronics have also been sourced to make a modular control system that any hobbyist could make. In addition to this, custom control software has been used to program the movement of the camera in 2 degrees of freedom and trigger the shutter of the camera automatically.
 

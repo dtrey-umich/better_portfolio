@@ -20,7 +20,7 @@ export default function ProjectPage() {
           <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2025</p>
         </div>
         <div className="prose prose-lg max-w-none">
-          <p>I created a macro rig for my camera not too long ago to capture pictures of flowers and other natural subjects. I never guessed that I would end up using it to create some of my most popular work: photos of ink. The ink I use is harvested from black disposable Bic pens and when combined with alcohol, water, and oil, it makes for a brilliantly colored subject. The vibrant hues come from the ink’s ability to change color as it dries from a royal purple to a bright orange. When lit well, it has the power to produce space-like images that draw the viewer in. Take a look below to see what I’m talking about.
+          <p className="mb-6">I created a macro rig for my camera not too long ago to capture pictures of flowers and other natural subjects. I never guessed that I would end up using it to create some of my most popular work: photos of ink. The ink I use is harvested from black disposable Bic pens and when combined with alcohol, water, and oil, it makes for a brilliantly colored subject. The vibrant hues come from the ink’s ability to change color as it dries from a royal purple to a bright orange. When lit well, it has the power to produce space-like images that draw the viewer in. Take a look below to see what I’m talking about.
 
 In several of my many shoots involving ink, I experimented with how the background can significantly change the color of the ink. Notice the color difference between the image above and the image to the left. That’s just another reason why ink is so cool to work with.
 

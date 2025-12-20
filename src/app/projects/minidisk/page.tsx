@@ -20,7 +20,7 @@ export default function ProjectPage() {
           <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2025</p>
         </div>
         <div className="prose prose-lg max-w-none">
-          <p>This is my leatherwork at its best. I made this case for a MiniDisk player that my mom had from a few years ago so that I could give both the player and the case to my friend from robotics who likes old ways of listening to music as a graduation gift. In the process, I made a video and Instagram post from it that got a lot of attention. Plus, the final product looks really stylish. I love how the silver hardware works together with the white stitching and rainbow ribbon to make a really lovely color palette.
+          <p className="mb-6">This is my leatherwork at its best. I made this case for a MiniDisk player that my mom had from a few years ago so that I could give both the player and the case to my friend from robotics who likes old ways of listening to music as a graduation gift. In the process, I made a video and Instagram post from it that got a lot of attention. Plus, the final product looks really stylish. I love how the silver hardware works together with the white stitching and rainbow ribbon to make a really lovely color palette.
 
 Sometimes when I show projects like this to people, they assume that I’m just really good at leatherworking but the truth is that I learn a lot on the fly. For this project, I tried stitching two panels of leather perpendicular to each other for the first time. That’s something I really enjoy about making a bunch of little projects. Over time, I have accumulated a decent amount of applicable knowledge that allows me to make more and more interesting things.</p>
         </div>

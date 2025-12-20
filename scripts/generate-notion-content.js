@@ -47,8 +47,59 @@ async function generatePageContent(page, blocks) {
   const year = page.properties.Year?.number?.toString() || new Date().getFullYear().toString();
   
   // Convert blocks to JSX
-  let hasImageGrid = false;
-  let imageGridPhotos = [];
+  let imageGridCounter = 0;
+  let allImageGridPhotos = [];
+  
+  // Helper function to process rich text with links and formatting
+  const processRichText = (richTextArray) => {
+    return richTextArray.map(text => {
+      let content = text.plain_text;
+      const hasNonDefaultColor = text.annotations.color && text.annotations.color !== 'default';
+      const hasLink = text.href;
+      
+      // Determine the color and font
+      let colorStyle = '';
+      let fontFamily = '';
+      
+      if (hasLink) {
+        // Links are always blue (#5B9BD5)
+        colorStyle = 'color: "#5B9BD5"';
+        // If the link also has highlighting, keep the handwriting font
+        if (hasNonDefaultColor) {
+          fontFamily = ', fontFamily: "Trey Handwrite, cursive"';
+        }
+      } else if (hasNonDefaultColor) {
+        // Highlighted text (non-link) is red with handwriting font
+        colorStyle = 'color: "#EC6F6B"';
+        fontFamily = ', fontFamily: "Trey Handwrite, cursive"';
+      }
+      
+      // Apply text formatting
+      if (text.annotations.bold) {
+        content = `<strong>${content}</strong>`;
+      }
+      if (text.annotations.italic) {
+        content = `<em>${content}</em>`;
+      }
+      if (text.annotations.code) {
+        content = `<code>${content}</code>`;
+      }
+      
+      // Wrap in span with styling if needed
+      if (hasNonDefaultColor || hasLink) {
+        const styleObject = `{{${colorStyle}${fontFamily}}}`;
+        const hoverClass = hasLink ? 'className="transition-opacity duration-200 hover:opacity-60" ' : '';
+        content = `<span ${hoverClass}style=${styleObject}>${content}</span>`;
+      }
+      
+      // Apply link if present
+      if (hasLink) {
+        content = `<a href="${text.href}" target="_blank" rel="noopener noreferrer">${content}</a>`;
+      }
+      
+      return content;
+    }).join('');
+  };
   
   // Process each block and convert to JSX
   const processBlocks = async (blocks) => {
@@ -65,18 +116,19 @@ async function generatePageContent(page, blocks) {
     
     switch (block.type) {
       case 'paragraph':
-        return `<p>${block.paragraph.rich_text.map(text => text.plain_text).join('')}</p>`;
+        return `<p className="mb-6">${processRichText(block.paragraph.rich_text)}</p>`;
       case 'heading_1':
-        return `<h1>${block.heading_1.rich_text.map(text => text.plain_text).join('')}</h1>`;
+        return `<h1 className="mt-8 mb-4">${processRichText(block.heading_1.rich_text)}</h1>`;
       case 'heading_2':
-        return `<h2>${block.heading_2.rich_text.map(text => text.plain_text).join('')}</h2>`;
+        return `<h2 className="mt-8 mb-4">${processRichText(block.heading_2.rich_text)}</h2>`;
       case 'heading_3':
-        return `<h3>${block.heading_3.rich_text.map(text => text.plain_text).join('')}</h3>`;
+        return `<h3 className="mt-6 mb-3">${processRichText(block.heading_3.rich_text)}</h3>`;
       case 'code':
         const code = block.code.rich_text.map(text => text.plain_text).join('');
         // Check if this is the image grid code
         if (block.code.language === 'typescript' && code.includes('ImageGrid')) {
-          hasImageGrid = true;
+          imageGridCounter++;
+          const photosVarName = `photos${imageGridCounter}`;
           try {
             // Try to extract the photos array
             const match = code.match(/photos=\{(\[[\s\S]*?\])\}/);
@@ -99,11 +151,17 @@ async function generatePageContent(page, blocks) {
 
               // Parse and ensure numbers are correct
               const photos = JSON.parse(jsonString);
-              imageGridPhotos = photos.map(photo => ({
+              const processedPhotos = photos.map(photo => ({
                 ...photo,
                 width: Number(photo.width),
                 height: Number(photo.height)
               }));
+              
+              // Store this photo array with its variable name
+              allImageGridPhotos.push({
+                varName: photosVarName,
+                photos: processedPhotos
+              });
               
               // Get layout parameters from the code if specified
               const layoutMatch = code.match(/layout="([^"]+)"/);
@@ -114,12 +172,11 @@ async function generatePageContent(page, blocks) {
               const columns = columnsMatch ? columnsMatch[1] : '2';
               const spacing = spacingMatch ? spacingMatch[1] : '16';
 
-              // Return the ImageGrid component inline where the code block was
-              return `<ImageGrid photos={photos} layout="${layout}" columns={${columns}} spacing={${spacing}} />`;
+              // Return the ImageGrid component inline where the code block was with spacing
+              return `<div className="my-8"><ImageGrid photos={${photosVarName}} layout="${layout}" columns={${columns}} spacing={${spacing}} /></div>`;
             }
           } catch (e) {
             console.warn('Failed to parse ImageGrid photos:', e.message);
-            imageGridPhotos = []; // Use empty array if parsing fails
           }
         }
         // Check if this is embed-like code
@@ -204,10 +261,10 @@ async function generatePageContent(page, blocks) {
             
             // Add the Script component if we found a script URL
             if (scriptUrl) {
-              return reactCode + `<Script src="${scriptUrl}" />`;
+              return `<div className="my-8">${reactCode}<Script src="${scriptUrl}" /></div>`;
             }
             
-            return reactCode;
+            return `<div className="my-8">${reactCode}</div>`;
           }
           
           // Handle regular embeds without scripts
@@ -272,9 +329,9 @@ async function generatePageContent(page, blocks) {
             );
           });
           
-          return reactCode;
+          return `<div className="my-8">${reactCode}</div>`;
         }
-        return `<pre><code>${code}</code></pre>`;
+        return `<pre className="my-6"><code>${code}</code></pre>`;
       case 'column_list':
         // Get the column children from the block
         const columnList = block;
@@ -306,7 +363,7 @@ async function generatePageContent(page, blocks) {
               }
             }
             
-            return `<div className="flex flex-col md:flex-row gap-4 my-4">
+            return `<div className="flex flex-col md:flex-row gap-4 my-8">
               ${columnDivs.join('\n')}
             </div>`;
           }
@@ -320,15 +377,19 @@ async function generatePageContent(page, blocks) {
   // Process all blocks and get the content
   const content = await processBlocks(blocks);
 
-  // Create page file content
-  const photosCode = hasImageGrid ? `const photos = ${JSON.stringify(imageGridPhotos, null, 2)};` : '';
+  // Create photo constant declarations for all image grids
+  const photosCode = allImageGridPhotos.length > 0 
+    ? allImageGridPhotos.map(({ varName, photos }) => 
+        `const ${varName} = ${JSON.stringify(photos, null, 2)};`
+      ).join('\n') 
+    : '';
   
   return "'use client';\n\n" +
     "import React from 'react';\n" +
     "import { motion } from 'framer-motion';\n" +
     "import ImageGrid from '@/components/ImageGrid';\n" +
     "import Script from 'next/script';\n" +
-    (hasImageGrid ? photosCode + "\n\n" : "\n") +
+    (allImageGridPhotos.length > 0 ? photosCode + "\n\n" : "\n") +
     "export default function ProjectPage() {\n" +
     "  return (\n" +
     "    <div className=\"pt-32 pb-16 min-h-screen\">\n" +
@@ -364,9 +425,39 @@ async function main() {
       throw new Error('NOTION_DATABASE_ID is not set');
     }
 
+    // Check for page slug argument
+    const targetSlug = process.argv[2];
+    if (targetSlug) {
+      console.log('Filtering to single page: ' + targetSlug);
+    }
+
     console.log('Fetching database content...');
-    const pages = await getDatabase();
+    let pages = await getDatabase();
     console.log('Found ' + pages.length + ' pages in database');
+    
+    // Filter to specific page if slug provided
+    if (targetSlug) {
+      const originalLength = pages.length;
+      pages = pages.filter(page => {
+        const title = page.properties['Page Name']?.title?.[0]?.plain_text || 'Untitled';
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        return slug === targetSlug;
+      });
+      
+      if (pages.length === 0) {
+        console.error('No page found with slug: ' + targetSlug);
+        console.log('Available slugs are:');
+        const allPages = await getDatabase();
+        allPages.forEach(p => {
+          const title = p.properties['Page Name']?.title?.[0]?.plain_text || 'Untitled';
+          const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          console.log('  - ' + slug);
+        });
+        process.exit(1);
+      }
+      
+      console.log('Filtered from ' + originalLength + ' to ' + pages.length + ' page(s)');
+    }
     
     // Create directory for generated pages if it doesn't exist
     const pagesDir = path.join(__dirname, '../src/app/projects');

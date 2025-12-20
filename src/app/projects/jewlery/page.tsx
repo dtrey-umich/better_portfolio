@@ -20,7 +20,7 @@ export default function ProjectPage() {
           <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2025</p>
         </div>
         <div className="prose prose-lg max-w-none">
-          <p>I like making jewelry out of brass and interesting materials that I have worked with in other projects. Most significantly, I have made several ear cuffs out of brass that I wear quite often in conjunction with some fake piercings. These ear cuffs and fake piercings are simply open rings of metal that clip around the top ridge of my ear and I like the way they tend to complete my style. I have pictures of those ear cuffs and more below.
+          <p className="mb-6">I like making jewelry out of brass and interesting materials that I have worked with in other projects. Most significantly, I have made several ear cuffs out of brass that I wear quite often in conjunction with some fake piercings. These ear cuffs and fake piercings are simply open rings of metal that clip around the top ridge of my ear and I like the way they tend to complete my style. I have pictures of those ear cuffs and more below.
 
 Necklaces and Earrings
 

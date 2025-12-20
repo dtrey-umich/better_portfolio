@@ -138,21 +138,6 @@ export default function Principles() {
               </motion.div>
             ))}
           </div>
-          
-          <motion.div
-            className="mt-16 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.0, ease: [0.2, 0.8, 0.2, 1] }}
-          >
-            <h2 className="text-2xl font-medium text-black mb-4">In Practice</h2>
-            <p className="text-gray-700 leading-relaxed">
-              These principles aren't just aspirational—they're embedded in every project workflow, 
-              from initial research and ideation through prototyping, testing, and deployment. 
-              They inform decisions about tools, methodologies, partnerships, and the broader 
-              impact of each piece of work.
-            </p>
-          </motion.div>
         </motion.div>
       </div>
     </div>
