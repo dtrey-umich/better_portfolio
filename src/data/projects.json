@@ -543,20 +543,20 @@
     {
       "id": "2c602671-1c99-8094-8d4d-d39aded3135d",
       "title": "Musical Motors",
-      "description": "",
-      "secondaryText": "",
+      "description": "Using networked robots to turn a room into an engaging musical instrument — drawing attention to the constructed environment",
+      "secondaryText": "A full-stack attempt at coordinating performance robots ",
       "date": "2025",
       "slug": "musical-motors",
-      "publishStatus": "Not Published",
+      "publishStatus": "Published",
       "categoryScores": {
         "research": 0,
-        "robotics": 0,
-        "software": 0,
-        "sculpture": 0,
-        "videography": 0,
-        "play": 0
+        "robotics": 0.9,
+        "software": 0.8,
+        "sculpture": 1,
+        "videography": 0.2,
+        "play": 0.6
       },
-      "image": "/better_portfolio/project-placeholder.jpg"
+      "image": "/better_portfolio/images/musical_motors/installed2.jpg"
     }
   ]
 }
