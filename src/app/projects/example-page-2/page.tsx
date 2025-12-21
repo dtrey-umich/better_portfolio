@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
 import ImageGrid from '@/components/ImageGrid';
 import Script from 'next/script';
@@ -18,6 +18,7 @@ const photos1 = [
     "alt": "Test Image 2"
   }
 ];
+
 
 export default function ProjectPage() {
   return (

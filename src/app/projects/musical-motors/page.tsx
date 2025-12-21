@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
 import ImageGrid from '@/components/ImageGrid';
 import Script from 'next/script';
@@ -26,6 +26,7 @@ const photos2 = [
     "alt": "All of the nodes made for the project"
   }
 ];
+
 
 export default function ProjectPage() {
   return (

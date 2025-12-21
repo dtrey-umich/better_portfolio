@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
 import ImageGrid from '@/components/ImageGrid';
 import Script from 'next/script';
@@ -35,14 +35,15 @@ const photos1 = [
 
 
 // Component to handle internal links with query parameter preservation
-function InternalLink({ href, children }) {
+function InternalLink({ href, children }: { href: string; children: React.ReactNode }) {
   const searchParams = useSearchParams();
   const query = searchParams.toString();
   const fullHref = query ? `${href}?${query}` : href;
   return <Link href={fullHref}>{children}</Link>;
 }
 
-export default function ProjectPage() {
+
+function ProjectContent() {
   return (
     <div className="pt-32 pb-16 min-h-screen">
       <motion.div
@@ -67,5 +68,13 @@ export default function ProjectPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function ProjectPage() {
+  return (
+    <Suspense fallback={<div className="pt-32 pb-16 min-h-screen" />}>
+      <ProjectContent />
+    </Suspense>
   );
 }
