@@ -60,6 +60,7 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [isStackHovered, setIsStackHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+    const isInitialMount = React.useRef(true);
   
   const allCategories = ['research', 'robotics', 'software', 'sculpture', 'videography', 'play'];
   
@@ -73,8 +74,14 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
     }
   }, [searchParams]);
   
-  // Update URL when active categories change
+    // Update URL when active categories change (but not on initial mount)
   useEffect(() => {
+      // Skip URL update on initial mount to prevent loop
+      if (isInitialMount.current) {
+        isInitialMount.current = false;
+        return;
+      }
+    
     const updateUrl = () => {
       const params = new URLSearchParams();
       
@@ -84,13 +91,19 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
       
       const queryString = params.toString();
       const newUrl = queryString ? `/?${queryString}` : '/';
-      router.push(newUrl, { scroll: false });
+      
+        // Only push if URL actually changed
+        const currentUrl = searchParams.toString();
+        const newQueryString = queryString || '';
+        if (currentUrl !== newQueryString) {
+          router.push(newUrl, { scroll: false });
+        }
     };
     
     // Use a small timeout to avoid too many updates
     const timeout = setTimeout(updateUrl, 100);
     return () => clearTimeout(timeout);
-  }, [activeCategories, router]);
+    }, [activeCategories, router, searchParams]);
   
   // Simple: calculate which projects should be in gallery
   const galleryProjects = initialProjects
