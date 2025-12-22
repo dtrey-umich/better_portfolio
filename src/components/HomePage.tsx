@@ -6,7 +6,7 @@ import { CategoryButton, Category } from '@/components/CategoryButton';
 import { ProjectCard, Project } from '@/components/ProjectCard';
 import { IconSprite } from '@/components/IconSprite';
 import { InstructionalText } from '@/components/InstructionalText';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import React from 'react';
 
 // Small icon component for the "See All Projects" card
@@ -56,6 +56,7 @@ interface HomePageClientProps {
 export function HomePageClient({ initialProjects, categories }: HomePageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [activeCategories, setActiveCategories] = useState<string[]>([]);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [isStackHovered, setIsStackHovered] = useState(false);
@@ -89,20 +90,18 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
     
     const updateUrl = () => {
       const params = new URLSearchParams();
-      
       if (activeCategories.length > 0) {
         params.set('categories', activeCategories.join(','));
       }
-      
       const queryString = params.toString();
-      const newUrl = queryString ? `/?${queryString}` : '/';
+      const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
       
-        // Only push if URL actually changed
-        const currentUrl = searchParams.toString();
-        const newQueryString = queryString || '';
-        if (currentUrl !== newQueryString) {
-          router.push(newUrl, { scroll: false });
-        }
+      // Only push if URL actually changed
+      const currentQuery = searchParams.toString();
+      const nextQuery = queryString || '';
+      if (currentQuery !== nextQuery) {
+        router.replace(newUrl, { scroll: false });
+      }
     };
     
     // Use a small timeout to avoid too many updates
