@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 // Icon component that uses your original SVG files with color overlay
@@ -81,7 +81,8 @@ const principles = [
     color: '#EC6F6B'
   }
 ];
-export default function Principles() {
+
+function PrinciplesContent() {
   const searchParams = useSearchParams();
   const categoriesParam = searchParams.get('categories');
   const activeCategories = categoriesParam ? categoriesParam.split(',').filter(cat => cat.trim()) : [];
@@ -155,5 +156,13 @@ export default function Principles() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function Principles() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <PrinciplesContent />
+    </Suspense>
   );
 }

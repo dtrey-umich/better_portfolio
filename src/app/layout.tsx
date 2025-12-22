@@ -3,6 +3,7 @@ import { Inter, Caveat } from "next/font/google";
 import "./globals.css";
 import { TopNavigation } from "@/components/TopNavigation";
 import { BottomFooter } from "@/components/BottomFooter";
+import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 const caveat = Caveat({ subsets: ["latin"] });
@@ -25,7 +26,9 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className={`${inter.className} bg-white`} suppressHydrationWarning>
-        <TopNavigation />
+        <Suspense fallback={null}>
+          <TopNavigation />
+        </Suspense>
         <main className="pt-20">
           {children}
         </main>

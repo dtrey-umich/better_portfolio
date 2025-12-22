@@ -1,6 +1,7 @@
 import { HomePageClient } from './HomePage';
 import path from 'path';
 import fs from 'fs/promises';
+import { Suspense } from 'react';
 
 // Define the categories with their colors and icons
 export const DEFAULT_CATEGORIES = [
@@ -29,9 +30,11 @@ export async function HomePageServer() {
   console.log('Loaded projects:', projects.length);
 
   return (
-    <HomePageClient 
-      initialProjects={projects}
-      categories={categories}
-    />
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+      <HomePageClient 
+        initialProjects={projects}
+        categories={categories}
+      />
+    </Suspense>
   );
 }
