@@ -61,6 +61,11 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
   const [isStackHovered, setIsStackHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
     const isInitialMount = React.useRef(true);
+  // After first mount, suppress entrance animations so query param changes don't replay them
+  const disableEntrance = React.useRef(false);
+  useEffect(() => {
+    disableEntrance.current = true;
+  }, []);
   
   const allCategories = ['research', 'robotics', 'software', 'sculpture', 'videography', 'play'];
   
@@ -183,7 +188,7 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
         <div className="flex items-start gap-[120px] mb-[80px]">
           {/* Left: Card Stack */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={disableEntrance.current ? false : { opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
             className="flex-shrink-0"
@@ -279,7 +284,7 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
 
           {/* Right: Category Buttons */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
+            initial={disableEntrance.current ? false : { opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4, ease: [0.2, 0.8, 0.2, 1] }}
             className="flex-shrink-0"
@@ -288,7 +293,7 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
               {categories.map((category, index) => (
                 <motion.div
                   key={category.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={disableEntrance.current ? false : { opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ 
                     duration: 0.3, 
@@ -310,7 +315,7 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
 
         {/* Gallery - Cards animate here from the stack */}
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={disableEntrance.current ? false : { opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
         >
@@ -320,7 +325,7 @@ export function HomePageClient({ initialProjects, categories }: HomePageClientPr
                 <motion.div
                   key={`gallery-${project.id}`}
                   layoutId={project.id}
-                  initial={{ opacity: 0 }}
+                  initial={disableEntrance.current ? false : { opacity: 0 }}
                   animate={{ 
                     opacity: 1, 
                     scale: 1,
