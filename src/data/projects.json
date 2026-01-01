@@ -1,24 +1,6 @@
 {
   "projects": [
     {
-      "id": "21502671-1c99-8050-b323-c5f8cff1e781",
-      "title": "Example Page 1",
-      "description": "It’s working!",
-      "secondaryText": "Additional Contributors: Erfun Ackley",
-      "date": "2023",
-      "slug": "example-page-1",
-      "publishStatus": "Published",
-      "categoryScores": {
-        "research": 0.03,
-        "robotics": 0.99,
-        "software": 0,
-        "sculpture": 0,
-        "videography": 0,
-        "play": 0
-      },
-      "image": "/images/test_image_1.jpg"
-    },
-    {
       "id": "29202671-1c99-8143-ac55-f83db337ee21",
       "title": "Ringevator",
       "description": "",
