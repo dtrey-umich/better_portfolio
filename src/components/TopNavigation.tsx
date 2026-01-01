@@ -27,7 +27,7 @@ const CategoryIconNav = ({ categoryId, color, isActive, onClick }: { categoryId:
   React.useEffect(() => {
     const loadSvg = async () => {
       try {
-        const response = await fetch(`/better_portfolio/category-icons/${categoryId}_icon.svg`);
+        const response = await fetch(`/category-icons/${categoryId}_icon.svg`);
         const text = await response.text();
         const modifiedSvg = text
           .replace(/fill="black"/g, '')
@@ -115,7 +115,7 @@ export function TopNavigation() {
               className="relative"
             >
               <img
-                src="/better_portfolio/images/Site Logo.JPG"
+                src="/images/Site Logo.JPG"
                 alt="Site Logo"
                 className="h-12 w-auto object-contain"
               />

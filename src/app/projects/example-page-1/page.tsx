@@ -8,25 +8,25 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 const photos1 = [
   {
-    "src": "/better_portfolio/images/test_image_3.jpg",
+    "src": "/images/test_image_3.jpg",
     "width": 800,
     "height": 600,
     "alt": "Test Image 1"
   },
   {
-    "src": "/better_portfolio/images/test_image_2.jpg",
+    "src": "/images/test_image_2.jpg",
     "width": 400,
     "height": 600,
     "alt": "Test Image 2"
   },
   {
-    "src": "/better_portfolio/images/test_image_1.jpg",
+    "src": "/images/test_image_1.jpg",
     "width": 800,
     "height": 600,
     "alt": "Test Image 3"
   },
   {
-    "src": "/better_portfolio/images/test_image_4.jpg",
+    "src": "/images/test_image_4.jpg",
     "width": 800,
     "height": 600,
     "alt": "Test Image 4"

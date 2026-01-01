@@ -6,13 +6,13 @@ import ImageGrid from '@/components/ImageGrid';
 import Script from 'next/script';
 const photos1 = [
   {
-    "src": "/better_portfolio/images/musical_motors/exhibition.jpg",
+    "src": "/images/musical_motors/exhibition.jpg",
     "width": 800,
     "height": 600,
     "alt": "The exibition where the project was installed"
   },
   {
-    "src": "/better_portfolio/images/musical_motors/installed2.jpg",
+    "src": "/images/musical_motors/installed2.jpg",
     "width": 800,
     "height": 600,
     "alt": "One Installed Node"
@@ -20,7 +20,7 @@ const photos1 = [
 ];
 const photos2 = [
   {
-    "src": "/better_portfolio/images/musical_motors/all_modules.jpg",
+    "src": "/images/musical_motors/all_modules.jpg",
     "width": 800,
     "height": 600,
     "alt": "All of the nodes made for the project"

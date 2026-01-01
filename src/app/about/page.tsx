@@ -41,7 +41,7 @@ export default function About() {
               transition={{ duration: 0.6, delay: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
             >
               <img 
-                src="/better_portfolio/images/about_picture.jpg"
+                src="/images/about_picture.jpg"
                 alt="Trey Davis"
                 className="w-64 h-80 object-cover rounded-lg"
               />

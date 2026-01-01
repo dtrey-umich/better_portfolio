@@ -42,7 +42,7 @@ const CategoryIcon = ({
   React.useEffect(() => {
     const loadSvg = async () => {
       try {
-        const response = await fetch(`/better_portfolio/category-icons/${categoryId}_icon.svg`);
+        const response = await fetch(`/category-icons/${categoryId}_icon.svg`);
         const text = await response.text();
         // Remove the hardcoded fill="black" and force dimensions to make it inherit CSS size
         const modifiedSvg = text

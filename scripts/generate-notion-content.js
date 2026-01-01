@@ -201,7 +201,7 @@ async function generatePageContent(page, blocks) {
                 // Convert all single quotes to double quotes
                 .replace(/'/g, '"')
                 // Add basePath to image URLs
-                .replace(/"src":\s*"\/images\//g, '"src": "/better_portfolio/images/')
+                .replace(/"src":\s*"\/images\//g, '"src": "/images/')
                 // Handle numeric values before other strings
                 .replace(/"(width|height)":\s*"(\d+)"/g, '"$1": $2')
                 // Remove trailing commas
@@ -620,8 +620,8 @@ async function main() {
         // Get image filename from the Images property
         const imageFilename = page.properties.Images?.rich_text?.[0]?.plain_text || '';
         const imageUrl = imageFilename ? 
-          '/better_portfolio/images/' + imageFilename : 
-          '/better_portfolio/project-placeholder.jpg';
+          '/images/' + imageFilename : 
+          '/project-placeholder.jpg';
 
         // Only add to metadata if Published (not Hidden)
         if (publishStatus === 'Published') {

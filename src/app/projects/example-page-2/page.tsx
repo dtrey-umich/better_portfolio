@@ -6,13 +6,13 @@ import ImageGrid from '@/components/ImageGrid';
 import Script from 'next/script';
 const photos1 = [
   {
-    "src": "/better_portfolio/images/test_image_3.jpg",
+    "src": "/images/test_image_3.jpg",
     "width": 800,
     "height": 600,
     "alt": "Test Image 1"
   },
   {
-    "src": "/better_portfolio/images/test_image_2.jpg",
+    "src": "/images/test_image_2.jpg",
     "width": 400,
     "height": 600,
     "alt": "Test Image 2"

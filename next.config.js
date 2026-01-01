@@ -12,7 +12,6 @@ const nextConfig = {
     ],
     unoptimized: true,
   },
-  basePath: '/better_portfolio',
 };
 
 module.exports = nextConfig; 

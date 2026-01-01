@@ -41,13 +41,6 @@ export function InstructionalText() {
           </motion.span>
         </Link>
       </p>
-
-      {/* Large arrow overlay positioned to the right of main text */}
-      <img 
-        src="/images/Explanatory text arrow.png" 
-        alt="Explanatory arrow pointing to text"
-        className="absolute -top-30 right-7 h-70 w-auto pointer-events-none z-10"
-      />
     </motion.div>
   );
 }

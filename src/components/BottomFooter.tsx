@@ -15,7 +15,7 @@ export function BottomFooter() {
           {/* Signature on the left */}
           <div className="flex items-center">
             <img
-              src="/better_portfolio/images/signature.png"
+              src="/images/signature.png"
               alt="Signature"
               className="h-16 w-auto object-contain"
             />
@@ -24,7 +24,7 @@ export function BottomFooter() {
           {/* Date on the right */}
           <div className="flex items-center">
             <img
-              src="/better_portfolio/images/date.png"
+              src="/images/date.png"
               alt="Date"
               className="h-8 w-auto object-contain"
             />

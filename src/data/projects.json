@@ -16,7 +16,7 @@
         "videography": 0,
         "play": 0
       },
-      "image": "/better_portfolio/images/test_image_1.jpg"
+      "image": "/images/test_image_1.jpg"
     },
     {
       "id": "29202671-1c99-8143-ac55-f83db337ee21",
@@ -34,7 +34,7 @@
         "videography": 0,
         "play": 0
       },
-      "image": "/better_portfolio/project-placeholder.jpg"
+      "image": "/project-placeholder.jpg"
     },
     {
       "id": "2c602671-1c99-8094-8d4d-d39aded3135d",
@@ -52,7 +52,7 @@
         "videography": 0,
         "play": 0.6
       },
-      "image": "/better_portfolio/images/musical_motors/installed2.jpg"
+      "image": "/images/musical_motors/installed2.jpg"
     }
   ]
 }
