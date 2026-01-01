@@ -1,4 +1,4 @@
-name: Sync Notion Content
+name: Sync Content and Deploy
 
 on:
   schedule:
@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   pages: write
+  id-token: write
 
 env:
   NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
@@ -15,8 +16,10 @@ env:
   GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
 
 jobs:
-  sync:
+  sync-gdrive:
     runs-on: ubuntu-latest
+    outputs:
+      has-changes: ${{ steps.check-changes.outputs.has-changes }}
     steps:
       - uses: actions/checkout@v4
       
@@ -37,21 +40,90 @@ jobs:
       - name: Sync images from Google Drive
         run: |
           echo "Starting Google Drive image sync..."
-          echo "GDRIVE_FOLDER_ID exists: ${{ secrets.GDRIVE_FOLDER_ID != '' }}"
           npm run sync-images
+      
+      - name: Check for changes
+        id: check-changes
+        run: |
+          if [[ -n $(git status -s) ]]; then
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Upload changes
+        if: steps.check-changes.outputs.has-changes == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gdrive-changes
+          path: public/images/
+
+  sync-notion:
+    runs-on: ubuntu-latest
+    outputs:
+      has-changes: ${{ steps.check-changes.outputs.has-changes }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
         
       - name: Generate content from Notion
         run: |
-          echo "Starting content generation..."
-          echo "NOTION_API_KEY exists: ${{ secrets.NOTION_API_KEY != '' }}"
-          echo "NOTION_DATABASE_ID exists: ${{ secrets.NOTION_DATABASE_ID != '' }}"
+          echo "Starting Notion content generation..."
           node scripts/generate-notion-content.js
-        
-      - name: Commit and push if changes
+      
+      - name: Check for changes
+        id: check-changes
+        run: |
+          if [[ -n $(git status -s) ]]; then
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Upload changes
+        if: steps.check-changes.outputs.has-changes == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: notion-changes
+          path: |
+            src/data/projects.json
+            src/app/projects/
+
+  commit-changes:
+    runs-on: ubuntu-latest
+    needs: [sync-gdrive, sync-notion]
+    if: needs.sync-gdrive.outputs.has-changes == 'true' || needs.sync-notion.outputs.has-changes == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download GDrive changes
+        if: needs.sync-gdrive.outputs.has-changes == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: gdrive-changes
+          path: public/images/
+      
+      - name: Download Notion changes
+        if: needs.sync-notion.outputs.has-changes == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: notion-changes
+          path: .
+      
+      - name: Commit and push changes
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add .
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update content from Notion" && git push)
+          git commit -m "Update content from Google Drive and Notion"
+          git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
