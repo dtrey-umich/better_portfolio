@@ -7,11 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate": "node scripts/generate-notion-content.js"
+    "generate": "node scripts/generate-notion-content.js",
+    "sync-images": "node scripts/sync-gdrive-images.js"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.14",
     "framer-motion": "^12.23.12",
+    "googleapis": "^169.0.0",
     "next": "15.3.3",
     "node-fetch": "2.6.7",
     "photoswipe": "^5.4.4",

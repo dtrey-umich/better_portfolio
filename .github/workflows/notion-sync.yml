@@ -12,6 +12,7 @@ permissions:
 env:
   NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
   NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+  GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
 
 jobs:
   sync:
@@ -27,6 +28,17 @@ jobs:
           
       - name: Install dependencies
         run: npm ci
+        
+      - name: Setup Google Drive credentials
+        run: |
+          echo '${{ secrets.GDRIVE_CREDENTIALS }}' > scripts/gdrive-credentials.json
+          echo '${{ secrets.GDRIVE_TOKEN }}' > scripts/gdrive-token.json
+        
+      - name: Sync images from Google Drive
+        run: |
+          echo "Starting Google Drive image sync..."
+          echo "GDRIVE_FOLDER_ID exists: ${{ secrets.GDRIVE_FOLDER_ID != '' }}"
+          npm run sync-images
         
       - name: Generate content from Notion
         run: |
