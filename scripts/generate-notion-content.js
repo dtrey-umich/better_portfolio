@@ -583,7 +583,9 @@ async function main() {
     }
     
     // Create directory for generated pages if it doesn't exist
-    const pagesDir = path.join(__dirname, '../src/app/projects');
+    // Use process.cwd() to ensure we're always relative to project root, not script location
+    const projectRoot = process.cwd();
+    const pagesDir = path.join(projectRoot, 'src/app/projects');
     await fs.mkdir(pagesDir, { recursive: true });
     console.log('Created/verified pages directory at: ' + pagesDir);
     
@@ -675,7 +677,7 @@ async function main() {
     }
     
     // Write projects metadata
-    const projectsJsonPath = path.join(__dirname, '../src/data/projects.json');
+    const projectsJsonPath = path.join(projectRoot, 'src/data/projects.json');
     await fs.writeFile(projectsJsonPath, JSON.stringify({ projects: projectsMetadata }, null, 2));
     console.log('Updated projects metadata at: ' + projectsJsonPath);
     
