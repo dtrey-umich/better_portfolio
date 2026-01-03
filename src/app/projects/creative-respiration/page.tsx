@@ -22,6 +22,7 @@ export default function ProjectPage() {
         </div>
         <div className="prose prose-lg max-w-none">
           <div className="my-8"><iframe width="560" height="315" src="https://www.youtube.com/embed/35hLi5jyS8c?si=T0-XiJMlnHhQuoI9" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen={true}></iframe></div>
+<p className="mb-6">I am adding some text here to do a little test with my new fancy button</p>
 <p className="mb-6"></p>
         </div>
       </motion.div>
