@@ -21,26 +21,26 @@ const photos1 = [
 const photos2 = [
   {
     "src": "/images/portfolio/font.jpg",
-    "width": 1920,
-    "height": 1080,
+    "width": 1260,
+    "height": 1226,
     "alt": "A custom font to look like my handwriting"
   },
   {
     "src": "/images/portfolio/logo.jpg",
-    "width": 1920,
-    "height": 1080,
+    "width": 820,
+    "height": 170,
     "alt": "The cuttent yellow bolt logo, looking more handmade than ever"
   },
   {
     "src": "/images/portfolio/icons_colors_drafting.jpg",
-    "width": 1920,
-    "height": 1080,
+    "width": 1045,
+    "height": 759,
     "alt": "Selecting the colors and designs for the topic icons"
   },
   {
     "src": "/images/portfolio/icons.jpg",
-    "width": 1920,
-    "height": 1080,
+    "width": 718,
+    "height": 902,
     "alt": "The final draft of the topic icons"
   }
 ];
@@ -78,9 +78,9 @@ export default function ProjectPage() {
 </ul>
 <p className="mb-6">My difficulties with Squarespace presented enough of a creative barrier that I never wanted to update my website. I’ve had my eye on building a website that better suits my needs for most of the three years I have been using Squarespace. But, a lack of time to learn the basics of developing in React or Javascript prevented me from considering this possibility. When “vibe coding” started gaining traction online, I realized that LLM-based programming assistants were powerful enough that I didn’t have to know anything about React or Javascript to make a website that suits all my needs. And, along the way, I could discover how to better integrate LLMs into my workflow to open more possibilities in developing projects that were originally outside of my skillset.</p>
 <p className="mb-6">I started the project by framing the visual design of the website, something that was comfortably within my wheelhouse. The most important design principle was to imagine each project as a single piece in a larger narrative. On the surface level of the site design, each project is organized into a “card” with just the most important information. The typical viewer can get a sense of several projects in an instant by looking at several of these cards, while still retaining access to in-depth information about the project by clicking on the card. Keeping each project compartmentalized in this way also enables them to be rearranged in appealing ways depending on the viewer. I used these ideas to mock-up some basic designs in Figma. Below you can see my original design for a home page with several projects (left) and a more experimental project-based story page (right).</p>
-<div className="my-8"><ImageGrid photos={photos1} layout="columns" columns={1} spacing={16} /></div>
+<div className="my-8"><ImageGrid photos={photos1} layout="columns" columns={2} spacing={16} /></div>
 <p className="mb-6">In these mock-ups, I developed a more rigorous visual language for the site design. I wanted the site to be a blend of clean and hand-crafted design elements to represent my mix of interests in engineering and art. The hand-crafted design elements are all based on a digitally hand-drawn aesthetic similar to the appearance of my digital design notes. This style appears in the form of <span style={{color: "#EC6F6B", fontFamily: "Trey Handwrite, cursive"}}>a custom font based on my handwriting</span>, my site logo, the topic icons used in the project cards, and several technical diagrams used in the project pages. Coupling this hand-crafted design language with moving project cards gives the site an experimental feeling that mirrors the way I feel about my work right now. </p>
-<div className="my-8"><ImageGrid photos={photos2} layout="columns" columns={1} spacing={16} /></div>
+<div className="my-8"><ImageGrid photos={photos2} layout="columns" columns={2} spacing={16} /></div>
 <div className="my-8"><ImageGrid photos={photos3} layout="columns" columns={1} spacing={16} /></div>
 <p className="mb-6"></p>
         </div>
