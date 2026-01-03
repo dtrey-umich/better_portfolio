@@ -165,10 +165,45 @@ async function generatePageContent(page, blocks) {
   // Process each block and convert to JSX
   const processBlocks = async (blocks) => {
     const processedContent = [];
-    for (const block of blocks) {
+    let i = 0;
+    
+    while (i < blocks.length) {
+      const block = blocks[i];
+      
+      // Check if this is the start of a bulleted list
+      if (block.type === 'bulleted_list_item') {
+        const listItems = [];
+        // Collect all consecutive bulleted list items
+        while (i < blocks.length && blocks[i].type === 'bulleted_list_item') {
+          const content = await generateBlockContent(blocks[i]);
+          listItems.push(content);
+          i++;
+        }
+        // Wrap in <ul>
+        processedContent.push(`<ul className="list-disc list-outside ml-12 mt-0 mb-6 space-y-2">\n${listItems.join('\n')}\n</ul>`);
+        continue;
+      }
+      
+      // Check if this is the start of a numbered list
+      if (block.type === 'numbered_list_item') {
+        const listItems = [];
+        // Collect all consecutive numbered list items
+        while (i < blocks.length && blocks[i].type === 'numbered_list_item') {
+          const content = await generateBlockContent(blocks[i]);
+          listItems.push(content);
+          i++;
+        }
+        // Wrap in <ol>
+        processedContent.push(`<ol className="list-decimal list-outside ml-12 mt-0 mb-6 space-y-2">\n${listItems.join('\n')}\n</ol>`);
+        continue;
+      }
+      
+      // Process other block types normally
       const content = await generateBlockContent(block);
       processedContent.push(content);
+      i++;
     }
+    
     return processedContent.join('\n');
   };
   
@@ -184,6 +219,10 @@ async function generatePageContent(page, blocks) {
         return `<h2 className="mt-8 mb-4">${processRichText(block.heading_2.rich_text)}</h2>`;
       case 'heading_3':
         return `<h3 className="mt-6 mb-3">${processRichText(block.heading_3.rich_text)}</h3>`;
+      case 'bulleted_list_item':
+        return `<li className="mb-2">${processRichText(block.bulleted_list_item.rich_text)}</li>`;
+      case 'numbered_list_item':
+        return `<li className="mb-2">${processRichText(block.numbered_list_item.rich_text)}</li>`;
       case 'code':
         const code = block.code.rich_text.map(text => text.plain_text).join('');
         // Check if this is the image grid code

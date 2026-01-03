@@ -30,11 +30,13 @@ export default function ProjectPage() {
         </div>
         <div className="prose prose-lg max-w-none">
           <p className="mb-6">These are the problems I had with Squarespace:</p>
-
-
-
-
-
+<ul className="list-disc list-outside ml-12 mt-0 mb-6 space-y-2">
+<li className="mb-2">An absolute pain to write in</li>
+<li className="mb-2">Costs $200 per year</li>
+<li className="mb-2">Doesn’t feel like it’s mine</li>
+<li className="mb-2">Forced me to categorize my project pages</li>
+<li className="mb-2">Poor image management</li>
+</ul>
 <p className="mb-6">I’m under no illusion that there are thousands of people reading about what I have to say online. But, writing and organizing my thoughts about my projects in a visual manner brings purpose and vision to my otherwise eclectic pursuits. And, the idea that thousands of people could be reading about my work is exciting enough to keep me going. But, the way I used to present my work with Squarespace caused too much of a barrier to adding new work that toppled all these motivations while also extracting $200 out of me very year.</p>
 <div className="my-8"><ImageGrid photos={photos1} layout="columns" columns={1} spacing={16} /></div>
 <p className="mb-6">The core design principle of the portfolio was to imagine each project as a single piece in a larger narrative. On the surface level of the site design, each project is organized into a “card” with just the most important information. Keeping each project compartmentalized in this way enables them to be rearranged in appealing ways depending on the viewer. </p>
