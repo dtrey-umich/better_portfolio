@@ -38,12 +38,6 @@ const photos3 = [
     "width": 1045,
     "height": 759,
     "alt": "Selecting the colors and designs for the topic icons"
-  },
-  {
-    "src": "/images/portfolio/icons.jpg",
-    "width": 718,
-    "height": 902,
-    "alt": "The final draft of the topic icons"
   }
 ];
 const photos4 = [
@@ -83,11 +77,13 @@ export default function ProjectPage() {
 <p className="mb-6">I started the project by framing the visual design of the website, something that was comfortably within my wheelhouse. The most important design principle was to imagine each project as a single piece in a larger narrative. On the surface level of the site design, each project is organized into a “card” with just the most important information. The typical viewer can get a sense of several projects in an instant by looking at several of these cards, while still retaining access to in-depth information about the project by clicking on the card. Keeping each project compartmentalized in this way also enables them to be rearranged in appealing ways depending on the viewer. I used these ideas to mock-up some basic designs in Figma. At the top of this page you can see my original design for a home page with several projects (left) and a more experimental project-based story page (right).</p>
 <div className="flex flex-col md:flex-row gap-4 my-8">
               <div className="flex-1 w-full"><div className="my-8"><ImageGrid photos={photos2} layout="columns" columns={1} spacing={16} /></div></div>
-<div className="flex-1 w-full"><div className="my-8"><ImageGrid photos={photos3} layout="columns" columns={2} spacing={16} /></div></div>
+<div className="flex-1 w-full"><div className="my-8"><ImageGrid photos={photos3} layout="columns" columns={1} spacing={16} /></div></div>
             </div>
 <p className="mb-6">In these mock-ups, I developed a more rigorous visual language for the site design. I wanted the site to be a blend of clean and hand-crafted design elements to represent my mix of interests in engineering and art. The hand-crafted design elements are all based on a digitally hand-drawn aesthetic similar to the appearance of my digital design notes. This style appears in the form of <span style={{color: "#EC6F6B", fontFamily: "Trey Handwrite, cursive"}}>a custom font based on my handwriting</span>, my site logo, the topic icons used in the project cards, and several technical diagrams used in the project pages. Coupling this hand-crafted design language with moving project cards gives the site an experimental feeling that mirrors the way I feel about my work right now. </p>
-<p className="mb-6">The other major goal of this project was to create a website writing workflow that  write in on the regular. I chose to base the majority of the site content on a Notion database because I already do my personal and academic writing and organization there. </p>
-<div className="my-8"><ImageGrid photos={photos4} layout="columns" columns={1} spacing={16} /></div>
+<div className="flex flex-col md:flex-row gap-4 my-8">
+              <div className="flex-1 w-full"><p className="mb-6">The other major goal of this project was to create a website writing workflow that I actually want to use. I chose to base the majority of the site content on a Notion database for writing and Google Drive folder for images because I already do my personal and academic writing and organization on these platforms. Then, in JavaScript, I created a program that uses the Notion and Google Cloud APIs to translate dynamic content in my workspaces into static Typescript pages. </p></div>
+<div className="flex-1 w-full"><div className="my-8"><ImageGrid photos={photos4} layout="columns" columns={1} spacing={16} /></div></div>
+            </div>
 <p className="mb-6"></p>
         </div>
       </motion.div>
