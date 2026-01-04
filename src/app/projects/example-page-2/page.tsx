@@ -22,7 +22,7 @@ const photos1 = [
 
 export default function ProjectPage() {
   return (
-    <div className="pt-32 pb-16 min-h-screen">
+    <div className="pt-20 pb-16 min-h-screen">
       <motion.div
         className="max-w-4xl mx-auto px-8"
         initial={{ opacity: 0, y: 20 }}

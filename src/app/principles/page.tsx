@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
 // Icon component that uses your original SVG files with color overlay
 const CategoryIcon = ({ principleId, color }: { principleId: string; color: string }) => {
@@ -86,6 +87,8 @@ function PrinciplesContent() {
   const searchParams = useSearchParams();
   const categoriesParam = searchParams.get('categories');
   const activeCategories = categoriesParam ? categoriesParam.split(',').filter(cat => cat.trim()) : [];
+  const query = searchParams.toString();
+  const dynamicPortfolioLink = query ? `/projects/a-dynamic-portfolio?${query}` : '/projects/a-dynamic-portfolio';
   
   return (
     <div 
@@ -110,7 +113,7 @@ function PrinciplesContent() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
           >
-            As a roboticist, artist, and researcher, I find myself wildly swinging between individual disciplines that other people spend their whole lives studying. My projects never seem to fit cleanly into one category which makes presenting my work a frustrating task. My approach to combat this is to document the degree to which each of my projects fits into the themes below and curate what I send people based on what I know they are interested in. Since I can’t be there to individually curate for everyone, you can pick one or more of these themes that align with what you want to see and my portfolio will automatically find and display the best projects based on what you picked.
+            As a roboticist, artist, and researcher, I find myself wildly swinging between individual disciplines that other people spend their whole lives studying. My projects never seem to fit cleanly into one category which makes presenting my work a frustrating task. My approach to combat this is to document the degree to which each of my projects fits into the themes below and curate what I send people based on what I know they are interested in. Since I can't be there to individually curate for everyone, you can pick one or more of these themes that align with what you want to see and my portfolio will automatically find and display the best projects based on what you picked. You can read more about why I organized the site like this <Link href={dynamicPortfolioLink} className="transition-opacity duration-200 hover:opacity-60" style={{ color: "#5B9BD5" }}>here</Link>.
           </motion.p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

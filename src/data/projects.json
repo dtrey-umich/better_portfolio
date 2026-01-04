@@ -35,6 +35,24 @@
         "play": 0.6
       },
       "image": "/images/musical_motors/installed2.jpg"
+    },
+    {
+      "id": "2dc02671-1c99-8050-9ccc-d8aed1949740",
+      "title": "A Dynamic Portfolio",
+      "description": "A custom website explicitly designed for my interdisciplinary work, gracefully integrated with Notion and Google Drive.",
+      "secondaryText": "A custom website that gracefully fits right into my workflow",
+      "date": "2025",
+      "slug": "a-dynamic-portfolio",
+      "publishStatus": "Published",
+      "categoryScores": {
+        "research": 0,
+        "robotics": 0,
+        "software": 0.8,
+        "sculpture": 0,
+        "videography": 0,
+        "play": 0.5
+      },
+      "image": "/images/portfolio/cover.png"
     }
   ]
 }

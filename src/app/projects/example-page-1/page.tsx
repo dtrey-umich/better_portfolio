@@ -45,7 +45,7 @@ function InternalLink({ href, children }: { href: string; children: React.ReactN
 
 function ProjectContent() {
   return (
-    <div className="pt-32 pb-16 min-h-screen">
+    <div className="pt-20 pb-16 min-h-screen">
       <motion.div
         className="max-w-4xl mx-auto px-8"
         initial={{ opacity: 0, y: 20 }}
@@ -73,7 +73,7 @@ function ProjectContent() {
 
 export default function ProjectPage() {
   return (
-    <Suspense fallback={<div className="pt-32 pb-16 min-h-screen" />}>
+    <Suspense fallback={<div className="pt-20 pb-16 min-h-screen" />}>
       <ProjectContent />
     </Suspense>
   );

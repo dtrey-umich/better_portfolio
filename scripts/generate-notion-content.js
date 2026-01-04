@@ -214,11 +214,11 @@ async function generatePageContent(page, blocks) {
       case 'paragraph':
         return `<p className="mb-6">${processRichText(block.paragraph.rich_text)}</p>`;
       case 'heading_1':
-        return `<h1 className="mt-8 mb-4">${processRichText(block.heading_1.rich_text)}</h1>`;
+        return `<h1 className="text-3xl font-bold mt-8 mb-4">${processRichText(block.heading_1.rich_text)}</h1>`;
       case 'heading_2':
-        return `<h2 className="mt-8 mb-4">${processRichText(block.heading_2.rich_text)}</h2>`;
+        return `<h2 className="text-2xl font-bold mt-8 mb-4">${processRichText(block.heading_2.rich_text)}</h2>`;
       case 'heading_3':
-        return `<h3 className="mt-6 mb-3">${processRichText(block.heading_3.rich_text)}</h3>`;
+        return `<h3 className="text-xl font-semibold mt-6 mb-3">${processRichText(block.heading_3.rich_text)}</h3>`;
       case 'bulleted_list_item':
         return `<li className="mb-2">${processRichText(block.bulleted_list_item.rich_text)}</li>`;
       case 'numbered_list_item':
@@ -517,7 +517,7 @@ function InternalLink({ href, children }: { href: string; children: React.ReactN
     (hasNotionLinks ? `
 function ProjectContent() {
   return (
-    <div className="pt-32 pb-16 min-h-screen">
+    <div className="pt-20 pb-16 min-h-screen">
       <motion.div
         className="max-w-4xl mx-auto px-8"
         initial={{ opacity: 0, y: 20 }}
@@ -539,14 +539,14 @@ function ProjectContent() {
 
 export default function ProjectPage() {
   return (
-    <Suspense fallback={<div className="pt-32 pb-16 min-h-screen" />}>
+    <Suspense fallback={<div className="pt-20 pb-16 min-h-screen" />}>
       <ProjectContent />
     </Suspense>
   );
 }` : `
 export default function ProjectPage() {
   return (
-    <div className="pt-32 pb-16 min-h-screen">
+    <div className="pt-20 pb-16 min-h-screen">
       <motion.div
         className="max-w-4xl mx-auto px-8"
         initial={{ opacity: 0, y: 20 }}
@@ -627,6 +627,29 @@ async function main() {
     const pagesDir = path.join(projectRoot, 'src/app/projects');
     await fs.mkdir(pagesDir, { recursive: true });
     console.log('Created/verified pages directory at: ' + pagesDir);
+    
+    // Get all valid slugs from Notion pages
+    const validSlugs = new Set();
+    for (const page of pages) {
+      const title = page.properties['Page Name']?.title?.[0]?.plain_text || 'Untitled';
+      const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      validSlugs.add(slug);
+    }
+    
+    // Clean up orphaned project folders (only if generating all pages, not single page mode)
+    if (!targetSlug) {
+      console.log('Checking for orphaned project folders...');
+      const existingDirs = await fs.readdir(pagesDir, { withFileTypes: true });
+      const projectDirs = existingDirs.filter(dirent => dirent.isDirectory());
+      
+      for (const dir of projectDirs) {
+        if (!validSlugs.has(dir.name)) {
+          const dirPath = path.join(pagesDir, dir.name);
+          console.log('Deleting orphaned project folder: ' + dir.name);
+          await fs.rm(dirPath, { recursive: true, force: true });
+        }
+      }
+    }
     
     // Store project metadata for the main page
     const projectsMetadata = [];
@@ -715,10 +738,14 @@ async function main() {
       }
     }
     
-    // Write projects metadata
-    const projectsJsonPath = path.join(projectRoot, 'src/data/projects.json');
-    await fs.writeFile(projectsJsonPath, JSON.stringify({ projects: projectsMetadata }, null, 2));
-    console.log('Updated projects metadata at: ' + projectsJsonPath);
+    // Write projects metadata only if we're generating all pages
+    if (!targetSlug) {
+      const projectsJsonPath = path.join(projectRoot, 'src/data/projects.json');
+      await fs.writeFile(projectsJsonPath, JSON.stringify({ projects: projectsMetadata }, null, 2));
+      console.log('Updated projects metadata at: ' + projectsJsonPath);
+    } else {
+      console.log('Skipped updating projects.json (single page mode)');
+    }
     
     console.log('Content generation complete!');
   } catch (error) {

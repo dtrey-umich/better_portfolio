@@ -3,6 +3,13 @@ const path = require('path');
 const { google } = require('googleapis');
 const crypto = require('crypto');
 
+// Load environment variables from .env.local for local testing
+try {
+  require('dotenv').config({ path: '.env.local' });
+} catch (error) {
+  console.log('No .env.local file found, assuming we are in CI environment');
+}
+
 // Configuration
 const LOCAL_IMAGE_DIR = path.join(__dirname, '../public/images');
 const SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];

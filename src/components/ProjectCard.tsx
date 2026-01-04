@@ -118,8 +118,8 @@ export function ProjectCard({ project, categories, onClick }: ProjectCardProps) 
             </p>
           </div>
           
-          {/* Right side - Project Image */}
-          <div className="w-28 h-28 rounded-lg overflow-hidden flex-shrink-0">
+          {/* Right side - Project Image with 3:2 aspect ratio */}
+          <div className="w-40 h-[106px] rounded-lg overflow-hidden flex-shrink-0">
             <img
               src={project.image}
               alt={project.title}

@@ -9,7 +9,7 @@ const photos1 = [
     "src": "/images/portfolio/project_card.jpg",
     "width": 1663,
     "height": 723,
-    "alt": "Using project cards in a homepage design"
+    "alt": "Core design elements of the project cards"
   }
 ];
 const photos2 = [
@@ -64,14 +64,14 @@ const photos4 = [
 
 export default function ProjectPage() {
   return (
-    <div className="pt-32 pb-16 min-h-screen">
+    <div className="pt-20 pb-16 min-h-screen">
       <motion.div
         className="max-w-4xl mx-auto px-8"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
       >
-        <h1 className="text-4xl font-bold mb-2">The Interdisciplinary Portfolio</h1>
+        <h1 className="text-4xl font-bold mb-2">A Dynamic Portfolio</h1>
         <div className="flex justify-between items-center mb-8">
           <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>A custom website that gracefully fits right into my workflow</p>
           <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2025</p>
