@@ -1,24 +1,6 @@
 {
   "projects": [
     {
-      "id": "29202671-1c99-8143-ac55-f83db337ee21",
-      "title": "Ringevator",
-      "description": "",
-      "secondaryText": "",
-      "date": "2026",
-      "slug": "ringevator",
-      "publishStatus": "Published",
-      "categoryScores": {
-        "research": 0,
-        "robotics": 1,
-        "software": 0,
-        "sculpture": 0,
-        "videography": 0,
-        "play": 0
-      },
-      "image": "/project-placeholder.jpg"
-    },
-    {
       "id": "2c602671-1c99-8094-8d4d-d39aded3135d",
       "title": "Musical Motors",
       "description": "Using networked robots to turn a room into an engaging musical instrument — drawing attention to the constructed environment",
