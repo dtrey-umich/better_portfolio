@@ -1,6 +1,24 @@
 {
   "projects": [
     {
+      "id": "29202671-1c99-810e-850d-cb67077996d3",
+      "title": "Droodles Creative Assistant",
+      "description": "A co-creative LLM-based agent that employs foundational creative psychology. Plus, an experiment to validate its functionality",
+      "secondaryText": "Contributors: Erfun Ackley, Patricia Alves-Oliveira, Peter H. Kahn Jr.",
+      "date": "2026",
+      "slug": "droodles-creative-assistant",
+      "publishStatus": "Published",
+      "categoryScores": {
+        "research": 1,
+        "robotics": 0.1,
+        "software": 0.7,
+        "sculpture": 0,
+        "videography": 0,
+        "play": 0
+      },
+      "image": "/images/droodles/arch.png"
+    },
+    {
       "id": "2c602671-1c99-8094-8d4d-d39aded3135d",
       "title": "Musical Motors",
       "description": "Using networked robots to turn a room into an engaging musical instrument — drawing attention to the constructed environment",
