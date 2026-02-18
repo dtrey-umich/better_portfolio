@@ -41,8 +41,8 @@ export default function ProjectPage() {
       >
         <h1 className="text-4xl font-bold mb-2">Ringevator</h1>
         <div className="flex justify-between items-center mb-8">
-          <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}></p>
-          <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2026</p>
+          <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>An interesting solution to a space constrained problem</p>
+          <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2021</p>
         </div>
         <div className="prose prose-lg max-w-none">
           <div className="flex flex-col md:flex-row gap-4 my-8">
@@ -55,6 +55,7 @@ export default function ProjectPage() {
             </div>
 <p className="mb-6">The Ringevator features a custom flexible 3D printed belt that is able to rotate rings from a flat position, pull them to the top of the robot, and deposit them in the loading tray of the ring launcher. It accomplishes this using its 4 degrees of freedom that allow it to deploy outward, walk over a ring before pulling it in, and tilt back to reliably transfer it into the launcher. This is shown in the diagram and video of a full transfer below.</p>
 <div className="my-8"><ImageGrid photos={photos3} layout="columns" columns={1} spacing={16} /></div>
+<div className="my-8"><iframe width="560" height="315" src="https://www.youtube.com/embed/Kkj9G5RqC1A?si=4IvpE3OLWEW2uFLg" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen={true}></iframe></div>
         </div>
       </motion.div>
     </div>

@@ -19,6 +19,24 @@
       "image": "/images/droodles/arch.png"
     },
     {
+      "id": "29202671-1c99-8143-ac55-f83db337ee21",
+      "title": "Ringevator",
+      "description": "A slim mechanism that picks rings off the ground and deposits them at the top of a robot to be loaded into a flywheel",
+      "secondaryText": "An interesting solution to a space constrained problem",
+      "date": "2021",
+      "slug": "ringevator",
+      "publishStatus": "Published",
+      "categoryScores": {
+        "research": 0,
+        "robotics": 0.97,
+        "software": 0,
+        "sculpture": 0,
+        "videography": 0,
+        "play": 0
+      },
+      "image": "/images/ringevator/proteus_real.jpg"
+    },
+    {
       "id": "2c602671-1c99-8094-8d4d-d39aded3135d",
       "title": "Musical Motors",
       "description": "Using networked robots to turn a room into an engaging musical instrument — drawing attention to the constructed environment",
