@@ -91,7 +91,7 @@ export default function ProjectPage() {
       >
         <h1 className="text-4xl font-bold mb-2">Flowers with Depth</h1>
         <div className="flex justify-between items-center mb-8">
-          <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}></p>
+          <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>Using robotics to take dynamic pictures of flowers</p>
           <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2022</p>
         </div>
         <div className="prose prose-lg max-w-none">
