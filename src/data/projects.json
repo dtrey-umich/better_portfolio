@@ -73,6 +73,24 @@
       "image": "/images/musical_motors/installed2.jpg"
     },
     {
+      "id": "2db02671-1c99-80e7-ac0f-d558bb0b34e3",
+      "title": "Creative Respiration",
+      "description": "Is the artist observant as much as they are creative? In this work, I use a robotic play on the established animation medium, the zoetrope, to place the careful intake of ideas on the same plane as production.",
+      "secondaryText": "A zoetrope and animation about the essentiality of observation in creativity",
+      "date": "2024",
+      "slug": "creative-respiration",
+      "publishStatus": "Published",
+      "categoryScores": {
+        "research": 0,
+        "robotics": 0.9,
+        "software": 0,
+        "sculpture": 0.9,
+        "videography": 0,
+        "play": 0.3
+      },
+      "image": "/images/creative_respiration/full_body.jpg"
+    },
+    {
       "id": "2dc02671-1c99-8050-9ccc-d8aed1949740",
       "title": "A Dynamic Portfolio",
       "description": "A custom website explicitly designed for my interdisciplinary work, gracefully integrated with Notion and Google Drive.",
