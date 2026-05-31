@@ -1,76 +1,22 @@
 {
   "projects": [
     {
-      "id": "29202671-1c99-810e-850d-cb67077996d3",
-      "title": "Droodles Creative Assistant",
-      "description": "A co-creative LLM-based agent that employs foundational creative psychology. Plus, an experiment to validate its functionality",
-      "secondaryText": "Contributors: Erfun Ackley, Patricia Alves-Oliveira, Peter H. Kahn Jr.",
-      "date": "2026",
-      "slug": "droodles-creative-assistant",
-      "publishStatus": "Published",
-      "categoryScores": {
-        "research": 1,
-        "robotics": 0.1,
-        "software": 0.7,
-        "sculpture": 0,
-        "videography": 0,
-        "play": 0
-      },
-      "image": "/images/droodles/arch.png"
-    },
-    {
-      "id": "29202671-1c99-8143-ac55-f83db337ee21",
-      "title": "Ringevator",
-      "description": "A slim mechanism that picks rings off the ground and deposits them at the top of a robot to be loaded into a flywheel",
-      "secondaryText": "An interesting solution to a space constrained problem",
-      "date": "2021",
-      "slug": "ringevator",
-      "publishStatus": "Published",
-      "categoryScores": {
-        "research": 0,
-        "robotics": 0.97,
-        "software": 0,
-        "sculpture": 0,
-        "videography": 0,
-        "play": 0
-      },
-      "image": "/images/ringevator/proteus_real.jpg"
-    },
-    {
-      "id": "29202671-1c99-81fe-8934-c7f657db3120",
-      "title": "Flowers with Depth",
-      "description": "Using robotics to take dynamic macro images of local wildflowers — an early project for me",
-      "secondaryText": "Using robotics to take dynamic pictures of flowers",
-      "date": "2022",
-      "slug": "flowers-with-depth",
-      "publishStatus": "Published",
-      "categoryScores": {
-        "research": 0,
-        "robotics": 0.1,
-        "software": 0,
-        "sculpture": 0,
-        "videography": 0.2,
-        "play": 0.3
-      },
-      "image": "/images/flowers/sec_12.jpg"
-    },
-    {
-      "id": "2c602671-1c99-8094-8d4d-d39aded3135d",
-      "title": "Musical Motors",
-      "description": "Using networked robots to turn a room into an engaging musical instrument — drawing attention to the constructed environment",
-      "secondaryText": "A full stack attempt at coordinating performance robots ",
+      "id": "2dc02671-1c99-8050-9ccc-d8aed1949740",
+      "title": "A Dynamic Portfolio",
+      "description": "A custom website explicitly designed for my interdisciplinary work, gracefully integrated with Notion and Google Drive.",
+      "secondaryText": "A custom website that gracefully fits right into my workflow",
       "date": "2025",
-      "slug": "musical-motors",
+      "slug": "a-dynamic-portfolio",
       "publishStatus": "Published",
       "categoryScores": {
         "research": 0,
-        "robotics": 0.9,
+        "robotics": 0,
         "software": 0.8,
-        "sculpture": 1,
+        "sculpture": 0,
         "videography": 0,
-        "play": 0.6
+        "play": 0.5
       },
-      "image": "/images/musical_motors/installed2.jpg"
+      "image": "/images/portfolio/cover.png"
     },
     {
       "id": "2db02671-1c99-80e7-ac0f-d558bb0b34e3",
@@ -91,22 +37,76 @@
       "image": "/images/creative_respiration/full_body.jpg"
     },
     {
-      "id": "2dc02671-1c99-8050-9ccc-d8aed1949740",
-      "title": "A Dynamic Portfolio",
-      "description": "A custom website explicitly designed for my interdisciplinary work, gracefully integrated with Notion and Google Drive.",
-      "secondaryText": "A custom website that gracefully fits right into my workflow",
+      "id": "2c602671-1c99-8094-8d4d-d39aded3135d",
+      "title": "Musical Motors",
+      "description": "Using networked robots to turn a room into an engaging musical instrument — drawing attention to the constructed environment",
+      "secondaryText": "A full stack attempt at coordinating performance robots ",
       "date": "2025",
-      "slug": "a-dynamic-portfolio",
+      "slug": "musical-motors",
       "publishStatus": "Published",
       "categoryScores": {
         "research": 0,
-        "robotics": 0,
+        "robotics": 0.9,
         "software": 0.8,
+        "sculpture": 1,
+        "videography": 0,
+        "play": 0.6
+      },
+      "image": "/images/musical_motors/installed2.jpg"
+    },
+    {
+      "id": "29202671-1c99-81fe-8934-c7f657db3120",
+      "title": "Flowers with Depth",
+      "description": "Using robotics to take dynamic macro images of local wildflowers — an early project for me",
+      "secondaryText": "Using robotics to take dynamic pictures of flowers",
+      "date": "2022",
+      "slug": "flowers-with-depth",
+      "publishStatus": "Published",
+      "categoryScores": {
+        "research": 0,
+        "robotics": 0.1,
+        "software": 0,
+        "sculpture": 0,
+        "videography": 0.2,
+        "play": 0.3
+      },
+      "image": "/images/flowers/sec_12.jpg"
+    },
+    {
+      "id": "29202671-1c99-8143-ac55-f83db337ee21",
+      "title": "Ringevator",
+      "description": "A slim mechanism that picks rings off the ground and deposits them at the top of a robot to be loaded into a flywheel",
+      "secondaryText": "An interesting solution to a space constrained problem",
+      "date": "2021",
+      "slug": "ringevator",
+      "publishStatus": "Published",
+      "categoryScores": {
+        "research": 0,
+        "robotics": 0.97,
+        "software": 0,
         "sculpture": 0,
         "videography": 0,
-        "play": 0.5
+        "play": 0
       },
-      "image": "/images/portfolio/cover.png"
+      "image": "/images/ringevator/proteus_real.jpg"
+    },
+    {
+      "id": "29202671-1c99-810e-850d-cb67077996d3",
+      "title": "Droodles Creative Assistant",
+      "description": "A co-creative LLM-based agent that employs foundational creative psychology. Plus, an experiment to validate its functionality",
+      "secondaryText": "Contributors: Erfun Ackley, Patricia Alves-Oliveira, Peter H. Kahn Jr.",
+      "date": "2026",
+      "slug": "droodles-creative-assistant",
+      "publishStatus": "Published",
+      "categoryScores": {
+        "research": 1,
+        "robotics": 0.1,
+        "software": 0.7,
+        "sculpture": 0,
+        "videography": 0,
+        "play": 0
+      },
+      "image": "/images/droodles/arch.png"
     }
   ]
 }
