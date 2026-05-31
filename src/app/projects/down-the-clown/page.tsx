@@ -36,7 +36,7 @@ export default function ProjectPage() {
         </div>
         <div className="prose prose-lg max-w-none">
           <div className="flex flex-col md:flex-row gap-4 my-8">
-              <div className="flex-1 w-full"><pre className="my-6"><code>demo embed</code></pre>
+              <div className="flex-1 w-full"><div className="my-8"><iframe width="560" height="315" src="https://www.youtube.com/embed/lvEIGGizwrE?si=45rNlIzB1FYMQc2v" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen={true}></iframe></div>
 <p className="mb-6"></p></div>
 <div className="flex-1 w-full"><p className="mb-6">Down the Clown is a two-player version of the arcade game that shares its name. In our version of the game, one player (the clown destroyer) throws balls at two moving clowns controlled by another player (the clown savior). Made in collaboration with 4 other people, this project is the largest scale embedded systems project that I have done. As the artist of the team, I was responsible for entire the physical construction of the project in addition to a fair share of the electronics and software.</p></div>
             </div>
