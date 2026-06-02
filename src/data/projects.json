@@ -1,6 +1,60 @@
 {
   "projects": [
     {
+      "id": "36702671-1c99-8041-a38e-e4acaa74674f",
+      "title": "Reactive Clay",
+      "description": "What if I made a robot out of ceramics?",
+      "secondaryText": "",
+      "date": "2026",
+      "slug": "reactive-clay",
+      "publishStatus": "Published",
+      "categoryScores": {
+        "research": 0,
+        "robotics": 0,
+        "software": 0,
+        "sculpture": 1,
+        "videography": 0,
+        "play": 1
+      },
+      "image": "/images/reactive_clay/test.jpeg"
+    },
+    {
+      "id": "36702671-1c99-80a7-bbe8-f9920b53b670",
+      "title": "Down the Clown",
+      "description": "A huge arcade machine made with the hearts and brains of five electrical engineers",
+      "secondaryText": "Collaborators: Muskaan Mittal, Riley LaMay, Charlie Herz, Jack Stifter",
+      "date": "2026",
+      "slug": "down-the-clown",
+      "publishStatus": "Published",
+      "categoryScores": {
+        "research": 0,
+        "robotics": 0.9,
+        "software": 0,
+        "sculpture": 0.9,
+        "videography": 0,
+        "play": 0.3
+      },
+      "image": "/images/down_the_clown/cover.jpg"
+    },
+    {
+      "id": "2de02671-1c99-8036-aaba-e9f004a3f7dd",
+      "title": "The Inspiration Mechanic",
+      "description": "A fictional documentary about inspiration",
+      "secondaryText": "A film exploring the fictional identity of a person in control of the world’s inspiration",
+      "date": "2026",
+      "slug": "the-inspiration-mechanic",
+      "publishStatus": "Published",
+      "categoryScores": {
+        "research": 0,
+        "robotics": 0,
+        "software": 0,
+        "sculpture": 0,
+        "videography": 1,
+        "play": 0
+      },
+      "image": "/images/ins_mechanic/cover.jpg"
+    },
+    {
       "id": "2dc02671-1c99-8050-9ccc-d8aed1949740",
       "title": "A Dynamic Portfolio",
       "description": "A custom website explicitly designed for my interdisciplinary work, gracefully integrated with Notion and Google Drive.",

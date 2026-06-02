@@ -6,25 +6,25 @@ import ImageGrid from '@/components/ImageGrid';
 import Script from 'next/script';
 const photos1 = [
   {
-    "src": "/reactive_clay/test.jpeg",
+    "src": "images/reactive_clay/test.jpeg",
     "width": 4000,
     "height": 3000,
     "alt": "A ceramic bowl with prototype lights"
   },
   {
-    "src": "/reactive_clay/wet.jpg",
+    "src": "images/reactive_clay/wet.jpg",
     "width": 4000,
     "height": 3000,
     "alt": "Fresh clay, thrown off the hump"
   },
   {
-    "src": "/reactive_clay/trimmed.jpg",
+    "src": "images/reactive_clay/trimmed.jpg",
     "width": 4000,
     "height": 3000,
     "alt": "Trimmed to the right shape"
   },
   {
-    "src": "/reactive_clay/glazed.jpeg",
+    "src": "images/reactive_clay/glazed.jpeg",
     "width": 4000,
     "height": 3000,
     "alt": "A selection of glazed final pieces"
