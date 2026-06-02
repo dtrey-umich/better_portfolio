@@ -18,6 +18,20 @@ const photos1 = [
     "alt": "Electrical Diagram"
   }
 ];
+const photos2 = [
+  {
+    "src": "/images/down_the_clown/team.jpeg",
+    "width": 1280,
+    "height": 960,
+    "alt": "My wonderful team. Look at how happy they are"
+  },
+  {
+    "src": "/images/down_the_clown/action.jpg",
+    "width": 2048,
+    "height": 1365,
+    "alt": "People playing our game at the expo"
+  }
+];
 
 
 export default function ProjectPage() {
@@ -50,20 +64,7 @@ export default function ProjectPage() {
 <li className="mb-2">Software: state and timer management to track game status, countdowns, and clown servo delays</li>
 </ul>
 <div className="my-8"><ImageGrid photos={photos1} layout="rows" columns={2} spacing={16} /></div>
-<pre className="my-6"><code><ImageGrid photos={[
-{
-  src: '/images/down_the_clown/team.jpg',
-  width: ??,
-  height: ??,
-  alt: 'My wonderful team. Look at how happy they are',
-},
-{
-  src: '/images/down_the_clown/action.png',
-  width: ??,
-  height: ??,
-  alt: 'People playing our game at the expo',
-}
-]} layout="columns" columns={2}/></code></pre>
+<div className="my-8"><ImageGrid photos={photos2} layout="columns" columns={2} spacing={16} /></div>
 <p className="mb-6"><span style={{color: "#EC6F6B", fontFamily: "Trey Handwrite, cursive"}}>Muskaan, Charlie, Riley, and Jack: if you’re reading this, I had a wonderful time working with you and I wish you all the best!</span></p>
 <p className="mb-6"></p>
         </div>

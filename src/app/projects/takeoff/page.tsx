@@ -18,7 +18,7 @@ export default function ProjectPage() {
         <h1 className="text-4xl font-bold mb-2">Takeoff</h1>
         <div className="flex justify-between items-center mb-8">
           <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}></p>
-          <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2026</p>
+          <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2025</p>
         </div>
         <div className="prose prose-lg max-w-none">
           

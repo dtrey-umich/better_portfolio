@@ -21,7 +21,7 @@ export default function ProjectPage() {
           <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2026</p>
         </div>
         <div className="prose prose-lg max-w-none">
-          <p className="mb-6">Made as an assignment for my videography class, this film explores the fictional identity of a person in control of the inspiration of the world. With an outsized role in defining the outcome of the world, the short film explores the effect we have on others’ creative lives.</p>
+          <p className="mb-6">This film explores the fictional identity of a person in control of the inspiration of the world. Through deliberate exaggeration, the film explores the impact we can have on the creative lives of others.</p>
 <div className="my-8"><iframe width="560" height="315" src="https://www.youtube.com/embed/jXBR_s3Q8S8?si=qGnNNyYCPVlEMgtH" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen={true}></iframe></div>
 <p className="mb-6"><span style={{color: "#EC6F6B", fontFamily: "Trey Handwrite, cursive"}}>Just watch the video. There isn’t much more to say</span></p>
 <p className="mb-6"></p>
