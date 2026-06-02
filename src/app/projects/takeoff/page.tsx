@@ -21,7 +21,7 @@ export default function ProjectPage() {
           <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2025</p>
         </div>
         <div className="prose prose-lg max-w-none">
-          
+          <div className="my-8"><iframe src="https://yellowboltart.com/poster-viewer.html" width="100%" height="600" frameBorder="0" allowFullScreen={true}></iframe></div>
         </div>
       </motion.div>
     </div>
