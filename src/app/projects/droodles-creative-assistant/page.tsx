@@ -83,7 +83,8 @@ export default function ProjectPage() {
           <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2026</p>
         </div>
         <div className="prose prose-lg max-w-none">
-          <h3 className="text-2xl font-semibold mt-6 mb-3"><span style={{color: "#EC6F6B", fontFamily: "Trey Handwrite, cursive"}}>TLDR</span></h3>
+          <div className="my-8"><iframe src="https://yellowboltart.com/poster-viewer.html" width="100%" height="600" frameBorder="0" allowFullScreen={true}></iframe></div>
+<h3 className="text-2xl font-semibold mt-6 mb-3"><span style={{color: "#EC6F6B", fontFamily: "Trey Handwrite, cursive"}}>TLDR</span></h3>
 <p className="mb-6">Current LLMs like ChatGPT are bad at co-creative problems. Have you ever tried to come up with an idea using ChatGPT? Instead of thinking with you and helping you tease out possible new concepts, it jumps directly to the conclusion and gives you a wealth of bad ideas. This is what my team wanted to fix. </p>
 <p className="mb-6">To make LLMs better at co-creative interactions, we unpack foundational creative psychology research to create a set of requirements and creativity eliciting strategies that a co-creative LLM should have. Then, we implement a multi-agent framework that automatically analyzes the context of the conversation, decides which co-creative strategy to apply, and responds to the user.</p>
 <p className="mb-6">We tested the novel system design in a user study with 62 participants, comparing it against a typical LLM and a human. Our results indicate that our agent was able to apply a divergent set of creative strategies, lengthen the time the user spent thinking about the problem, and be more of a creative guide than a source of bad ideas. Despite this, we found the typical LLM and our system to be not statistically significantly different. To understand why, I recommend that you read the discussion section of my paper, attached below.</p>
@@ -101,10 +102,8 @@ export default function ProjectPage() {
 <li className="mb-2">Drafted almost all of the paper (not including some of the data analysis sections)</li>
 </ul>
 <p className="mb-6">The rest of the work was done by my project partner, Erfun Ackely, and much of the direction of the project was contributed by Dr. Patricia Alves-Oliveira. Peter H. Khan was a kind of external advisor.</p>
-<h3 className="text-2xl font-semibold mt-6 mb-3"><span style={{color: "#EC6F6B", fontFamily: "Trey Handwrite, cursive"}}>The publication</span></h3>
+<h3 className="text-2xl font-semibold mt-6 mb-3"><span style={{color: "#EC6F6B", fontFamily: "Trey Handwrite, cursive"}}>Publication and Further Reading</span></h3>
 <p className="mb-6">I will not go into further detail of the functionality of our system or our experimental results because that’s why we wrote a paper about it. As of February 2026, the publication has been submitted to <a href="https://cc.acm.org/2026/" target="_blank" rel="noopener noreferrer"><span className="transition-opacity duration-200 hover:opacity-60" style={{color: "#5B9BD5"}}>Creativity and Cognition</span></a> and my team is awaiting a response. I have a version of our current poster here for you to read.</p>
-<div className="my-8"><iframe src="https://yellowboltart.com/poster-viewer.html" width="100%" height="600" frameBorder="0" allowFullScreen={true}></iframe></div>
-<h3 className="text-2xl font-semibold mt-6 mb-3"><span style={{color: "#EC6F6B", fontFamily: "Trey Handwrite, cursive"}}>A fun little comic I made that explains our system</span></h3>
 <p className="mb-6">If you’re curious about the technical design of our LLM-based agent, there is fairly comprehensive documentation on our <a href="https://github.com/studiorobot/droodles_creative_mentor" target="_blank" rel="noopener noreferrer"><span className="transition-opacity duration-200 hover:opacity-60" style={{color: "#5B9BD5"}}>github page</span></a>. Or, you can read this short comic I made for fun.</p>
 <div className="my-8"><ImageGrid photos={photos1} layout="carousel" columns={2} spacing={16} /></div>
         </div>

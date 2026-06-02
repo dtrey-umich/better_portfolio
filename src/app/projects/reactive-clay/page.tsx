@@ -6,25 +6,25 @@ import ImageGrid from '@/components/ImageGrid';
 import Script from 'next/script';
 const photos1 = [
   {
-    "src": "images/reactive_clay/test.jpeg",
+    "src": "/images/reactive_clay/test.jpeg",
     "width": 4000,
     "height": 3000,
     "alt": "A ceramic bowl with prototype lights"
   },
   {
-    "src": "images/reactive_clay/wet.jpg",
+    "src": "/images/reactive_clay/wet.jpg",
     "width": 4000,
     "height": 3000,
     "alt": "Fresh clay, thrown off the hump"
   },
   {
-    "src": "images/reactive_clay/trimmed.jpg",
+    "src": "/images/reactive_clay/trimmed.jpg",
     "width": 4000,
     "height": 3000,
     "alt": "Trimmed to the right shape"
   },
   {
-    "src": "images/reactive_clay/glazed.jpeg",
+    "src": "/images/reactive_clay/glazed.jpeg",
     "width": 4000,
     "height": 3000,
     "alt": "A selection of glazed final pieces"
@@ -73,7 +73,7 @@ export default function ProjectPage() {
       >
         <h1 className="text-4xl font-bold mb-2">Reactive Clay</h1>
         <div className="flex justify-between items-center mb-8">
-          <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}></p>
+          <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>What if I made a robot out of ceramics?</p>
           <p className="text-xl" style={{ fontFamily: 'Trey Handwrite, cursive', color: '#EC6F6B' }}>2026</p>
         </div>
         <div className="prose prose-lg max-w-none">
