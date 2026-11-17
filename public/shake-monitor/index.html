@@ -9,7 +9,7 @@
 <style>
   :root {
     --bg: #0f1115; --panel: #181b22; --line: #2a2f3a; --text: #e9ecf1; --muted: #9aa3b2;
-    --below: #3a6fd8; --in: #1f9d55; --held: #13b85f; --above: #e0832b; --idle: #4a5060; --bad: #d64545;
+    --below: #3a6fd8; --in: #1f9d55; --held: #13b85f; --above: #e0832b; --idle: #4a5060; --bad: #d64545; --ask: #7a4fd6;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: var(--bg); color: var(--text);
@@ -21,23 +21,26 @@
   .status { display: flex; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
   .status b { color: var(--text); font-weight: 600; }
   .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--idle); margin-right: 4px; vertical-align: middle; }
-  #level { border-radius: 16px; padding: 14px 12px 12px; margin-top: 10px; text-align: center; background: var(--idle); transition: background .15s; }
-  #levelState { font-size: 22px; font-weight: 800; letter-spacing: .06em; }
-  #levelValue { font-size: min(26vw, 150px); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  #level { border-radius: 16px; padding: 12px 12px 12px; margin-top: 10px; text-align: center; background: var(--idle); transition: background .15s; }
+  #trialLine { font-size: 16px; font-weight: 700; opacity: .95; }
+  #levelState { font-size: 21px; font-weight: 800; letter-spacing: .05em; margin-top: 2px; }
+  #levelValue { font-size: min(24vw, 140px); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
   #levelValue small { font-size: .3em; font-weight: 700; }
   #levelSub { font-size: 15px; opacity: .9; margin-top: 4px; font-variant-numeric: tabular-nums; }
   .bar { height: 14px; background: rgba(0,0,0,.3); border-radius: 7px; overflow: hidden; margin-top: 10px; }
   .bar > div { height: 100%; width: 0; background: #fff; transition: width .1s linear; }
-  canvas { width: 100%; height: 170px; display: block; }
+  canvas { width: 100%; height: 160px; display: block; }
   button { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 12px 14px; background: #2c3342; color: var(--text); cursor: pointer; }
   button:disabled { opacity: .4; }
   button.primary { background: #2f6fe4; }
   button.go { background: var(--in); }
   button.stop { background: var(--bad); }
+  button.big { font-size: 20px; padding: 16px; }
+  button.small { padding: 6px 10px; font-size: 13px; }
   .row { display: flex; gap: 8px; flex-wrap: wrap; }
   .row > * { flex: 1 1 auto; }
   label { display: block; font-size: 13px; color: var(--muted); }
-  input, select, textarea { font: inherit; font-size: 16px; width: 100%; margin-top: 3px; padding: 8px; border-radius: 8px;
+  input, select { font: inherit; font-size: 16px; width: 100%; margin-top: 3px; padding: 8px; border-radius: 8px;
     border: 1px solid var(--line); background: #0f1218; color: var(--text); }
   input[type=checkbox] { width: auto; margin: 0 6px 0 0; vertical-align: middle; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -45,12 +48,15 @@
   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; font-size: 14px; font-variant-numeric: tabular-nums; }
   .stats div span { color: var(--muted); }
   #msg { display: none; background: #3a2020; border: 1px solid var(--bad); color: #ffd9d9; border-radius: 10px; padding: 10px; margin-top: 10px; font-size: 14px; line-height: 1.4; }
-  .verdict { font-size: 20px; font-weight: 800; padding: 6px 10px; border-radius: 8px; display: inline-block; }
-  .pass { background: var(--in); } .fail { background: var(--bad); }
+  .warn { background: #3a3020; border: 1px solid var(--above); color: #ffe6c7; border-radius: 10px; padding: 8px 10px; font-size: 13px; margin-top: 8px; line-height: 1.4; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
-  td, th { border-bottom: 1px solid var(--line); padding: 6px 4px; text-align: left; vertical-align: top; }
+  td, th { border-bottom: 1px solid var(--line); padding: 6px 4px; text-align: left; vertical-align: middle; }
+  th { color: var(--muted); font-weight: 600; }
+  tr.cur td { background: rgba(47,111,228,.15); }
+  .yes { color: #5be59a; font-weight: 700; } .no { color: #ff8a8a; font-weight: 700; } .dim { color: var(--muted); }
   details summary { cursor: pointer; font-weight: 600; }
-  .runActive #settings input, .runActive #settings select { pointer-events: none; opacity: .5; }
+  .locked input:not(.free), .locked select:not(.free) { pointer-events: none; opacity: .5; }
+  #askPanel { border-color: var(--ask); }
 </style>
 </head>
 <body>
@@ -65,32 +71,25 @@
   <div id="msg"></div>
 
   <div id="level">
+    <div id="trialLine">–</div>
     <div id="levelState">SENSORS OFF</div>
     <div id="levelValue">–<small> g</small></div>
-    <div id="levelSub">Target –</div>
+    <div id="levelSub">–</div>
     <div class="bar"><div id="holdBar"></div></div>
   </div>
 
+  <!-- Trial controls -->
   <div class="panel">
-    <canvas id="chart"></canvas>
-    <div class="hint">Last 20 s. Thick line: rolling metric. Thin line: instantaneous acceleration. Green band: target range.</div>
-  </div>
-
-  <div class="panel">
-    <div class="row">
+    <div class="row" id="enableRow">
       <button class="primary" id="enableBtn">Enable sensors &amp; sound</button>
       <button id="testBeepBtn">Test beep</button>
     </div>
     <div class="row" style="margin-top:8px">
-      <button class="go" id="startBtn" disabled>Start recording run</button>
-      <button class="stop" id="stopBtn" disabled>Stop run</button>
-    </div>
-    <div class="grid" style="margin-top:10px">
-      <label>Run label<input id="runLabel" placeholder="e.g. Run 3, unit A"></label>
-      <label>Notes<input id="runNotes" placeholder="operator, axis, etc."></label>
+      <button class="go big" id="startBtn" disabled>Start trial</button>
+      <button class="stop" id="abortBtn" disabled>Abort trial</button>
     </div>
     <div class="stats" style="margin-top:10px">
-      <div><span>Run time</span> <b id="sRun">–</b></div>
+      <div><span>Trial time</span> <b id="sRun">–</b></div>
       <div><span>In range</span> <b id="sIn">–</b></div>
       <div><span>Longest in range</span> <b id="sLong">–</b></div>
       <div><span>Required</span> <b id="sReq">–</b></div>
@@ -99,70 +98,104 @@
     </div>
   </div>
 
-  <div class="panel" id="summaryPanel" style="display:none">
-    <h2>Last run summary</h2>
-    <div id="summary"></div>
+  <!-- Detection prompt -->
+  <div class="panel" id="askPanel" style="display:none">
+    <h2>Was the earthquake detected?</h2>
+    <div id="askInfo" class="hint" style="font-size:13px;color:var(--text)"></div>
     <div class="row" style="margin-top:10px">
-      <button class="primary" id="saveBtn">Save CSV</button>
-      <button id="shareBtn">Share CSV…</button>
-      <button id="copyBtn">Copy summary</button>
+      <button class="go big" id="detYesBtn">Detected</button>
+      <button class="stop big" id="detNoBtn">Not detected</button>
     </div>
-    <div class="hint">CSV has one row per sensor sample plus the settings and summary as # comment lines at the top. In Python: <code>pandas.read_csv(path, comment="#")</code>.</div>
-  </div>
-
-  <div class="panel" id="historyPanel" style="display:none">
-    <h2>Runs this session</h2>
-    <table><thead><tr><th>Run</th><th>Result</th><th></th></tr></thead><tbody id="history"></tbody></table>
-  </div>
-
-  <div class="panel" id="settings">
-    <h2>Settings</h2>
-    <div class="grid">
-      <label>Target (g)<input id="target" type="number" step="0.005" min="0.001" value="0.05"></label>
-      <label>Tolerance (± %)<input id="tol" type="number" step="1" min="1" max="90" value="20"></label>
-      <label>Metric<select id="metric"><option value="peak">Peak over window</option><option value="rms">RMS over window</option></select></label>
-      <label>Axis<select id="axis">
-        <option value="vec">All axes (vector)</option><option value="x">Phone X (short side)</option>
-        <option value="y">Phone Y (long side)</option><option value="z">Phone Z (through screen)</option></select></label>
-      <label>Hold before beep (s)<input id="hold" type="number" step="0.5" min="0" value="5"></label>
-      <label>Required duration in range (s)<input id="required" type="number" step="1" min="1" value="30"></label>
-      <label>Rolling window (s)<input id="win" type="number" step="0.25" min="0.25" value="1"></label>
-      <label>High-pass cutoff (Hz)<input id="hpf" type="number" step="0.05" min="0.05" value="0.2"></label>
-      <label>Low-pass cutoff (Hz, 0 = off)<input id="lpf" type="number" step="1" min="0" value="15"></label>
-      <label>Volume<input id="vol" type="range" min="0" max="1" step="0.05" value="0.8"></label>
-    </div>
-    <label style="margin-top:10px"><input type="checkbox" id="tickWhileHeld">Keep ticking once a second while held in range</label>
-    <div class="hint">The high-pass filter removes gravity. Keep it well below your shaking frequency (0.2 Hz cuts a 1 Hz signal by about 2%). Settings are locked while a run is recording and are saved in the CSV.</div>
-    <details style="margin-top:12px">
-      <summary>Simulated input (for practice on a laptop)</summary>
-      <label style="margin-top:8px"><input type="checkbox" id="simOn">Use simulated shaking instead of the phone sensor</label>
-      <div class="grid" style="margin-top:6px">
-        <label>Sim amplitude (g)<input id="simAmp" type="number" step="0.005" value="0.05"></label>
-        <label>Sim frequency (Hz)<input id="simFreq" type="number" step="0.1" value="2"></label>
-      </div>
-      <div class="hint">Turn this on before pressing Enable. You can change the amplitude while it runs to watch the alarm logic.</div>
-    </details>
-  </div>
-
-  <div class="panel" id="recoverPanel" style="display:none">
-    <h2>Recovered run</h2>
-    <div id="recoverInfo" class="hint"></div>
-    <div class="row" style="margin-top:8px">
-      <button class="primary" id="recSaveBtn">Save CSV</button>
-      <button id="recShareBtn">Share CSV…</button>
-      <button id="recDiscardBtn">Discard</button>
-    </div>
+    <label style="margin-top:10px">Note for this trial (optional)<input id="trialNote" placeholder="e.g. alert after ~3 s"></label>
+    <div class="row" style="margin-top:8px"><button id="redoBtn">Redo this trial (keep data, don't count it)</button></div>
   </div>
 
   <div class="panel">
-    <h2>Checklist</h2>
+    <canvas id="chart"></canvas>
+    <div class="hint">Last 20 s. Thick line: rolling metric. Thin line: instantaneous acceleration. Green band: target range.</div>
+  </div>
+
+  <!-- Results -->
+  <div class="panel">
+    <h2>Sweep results</h2>
+    <div id="sweepInfo" class="hint" style="font-size:13px;color:var(--text);margin-top:0"></div>
+    <div id="noiseWarn"></div>
+    <div style="overflow-x:auto;margin-top:8px">
+      <table><thead><tr><th>#</th><th>Target</th><th>Achieved</th><th>Hz</th><th>Detected</th><th>Status</th></tr></thead>
+      <tbody id="results"></tbody></table>
+    </div>
+    <div class="hint">Tap a Detected value to correct it. Achieved = mean rolling metric during the longest in-range stretch.</div>
+    <h2 style="margin-top:14px">Detection by level</h2>
+    <table><thead><tr><th>Level</th><th>Valid trials</th><th>Detected</th><th>Rate</th><th>Mean achieved</th></tr></thead>
+    <tbody id="levels"></tbody></table>
+    <div class="row" style="margin-top:12px">
+      <button class="primary" id="saveZipBtn">Save all (.zip)</button>
+      <button id="shareZipBtn">Share all…</button>
+      <button id="copyBtn">Copy summary</button>
+    </div>
+    <div class="hint" id="persistInfo"></div>
+  </div>
+
+  <!-- Setup -->
+  <div class="panel" id="setup">
+    <h2>Sweep setup</h2>
+    <div id="setupLockNote" class="hint" style="display:none;margin-top:0;margin-bottom:8px">Locked while a sweep has data. Export, then start a new sweep to change these.</div>
+    <div class="grid">
+      <label>Sweep name<input class="free" id="swLabel" placeholder="e.g. Detector v2 sweep"></label>
+      <label>Notes<input class="free" id="swNotes" placeholder="device, firmware, operator"></label>
+      <label>Start level (g)<input id="swStart" type="number" step="0.01" min="0.005" value="0.02"></label>
+      <label>End level (g)<input id="swEnd" type="number" step="0.01" min="0.005" value="0.10"></label>
+      <label>Step (g)<input id="swStep" type="number" step="0.005" min="0.005" value="0.02"></label>
+      <label>Trials per level<input id="swReps" type="number" step="1" min="1" max="20" value="3"></label>
+      <label>Order<select id="swOrder"><option value="asc">Low to high, level by level</option><option value="random">Randomized</option></select></label>
+      <label>No-shake control trials<input id="swControls" type="number" step="1" min="0" max="20" value="0"></label>
+      <label>Required time in range (s)<input id="required" type="number" step="1" min="1" value="30"></label>
+      <label>Recording after done (s)<input id="postRoll" type="number" step="1" min="0" value="5"></label>
+      <label>Tolerance (± %)<input id="tol" type="number" step="1" min="1" max="90" value="20"></label>
+      <label>Hold before "on target" beep (s)<input id="hold" type="number" step="0.5" min="0" value="3"></label>
+    </div>
+    <div class="hint">A trial ends on its own once the shaking has stayed in range for the required time without a break. Control trials record the rig sitting still for the same time; a detection there is a false alarm.</div>
+    <div class="row" style="margin-top:10px">
+      <button id="noiseBtn" disabled>Measure noise (keep still 5 s)</button>
+      <button class="stop" id="newSweepBtn">New sweep</button>
+    </div>
+    <details style="margin-top:12px">
+      <summary>Signal settings</summary>
+      <div class="grid" style="margin-top:8px">
+        <label>Metric<select id="metric"><option value="peak">Peak over window</option><option value="rms">RMS over window</option></select></label>
+        <label>Axis<select id="axis">
+          <option value="vec">All axes (vector)</option><option value="x">Phone X (short side)</option>
+          <option value="y">Phone Y (long side)</option><option value="z">Phone Z (through screen)</option></select></label>
+        <label>Rolling window (s)<input id="win" type="number" step="0.25" min="0.25" value="1"></label>
+        <label>High-pass cutoff (Hz)<input id="hpf" type="number" step="0.05" min="0.05" value="0.2"></label>
+        <label>Low-pass cutoff (Hz, 0 = off)<input id="lpf" type="number" step="1" min="0" value="15"></label>
+        <label>Volume<input class="free" id="vol" type="range" min="0" max="1" step="0.05" value="0.8"></label>
+      </div>
+      <label style="margin-top:10px"><input class="free" type="checkbox" id="tickWhileHeld">Tick once a second while on target</label>
+      <div class="hint">The high-pass filter removes gravity; 0.2 Hz cuts a 1 Hz signal by about 2%.</div>
+    </details>
+    <details style="margin-top:12px">
+      <summary>Simulated input (for practice on a laptop)</summary>
+      <label style="margin-top:8px"><input class="free" type="checkbox" id="simOn">Use simulated shaking instead of the phone sensor</label>
+      <label style="margin-top:6px"><input class="free" type="checkbox" id="simFollow" checked>Simulated operator follows each trial's target</label>
+      <div class="grid" style="margin-top:6px">
+        <label>Sim amplitude (g, if not following)<input class="free" id="simAmp" type="number" step="0.005" value="0.05"></label>
+        <label>Sim frequency (Hz)<input class="free" id="simFreq" type="number" step="0.1" value="1.5"></label>
+      </div>
+      <div class="hint">Turn this on before pressing Enable.</div>
+    </details>
+  </div>
+
+  <div class="panel">
+    <h2>How to run a sweep</h2>
     <div class="hint" style="font-size:13px">
-      1. Open this page in Safari (not inside another app). Ring/silent switch to ring, volume up.<br>
-      2. Tap <b>Enable sensors &amp; sound</b> and allow motion access, then <b>Test beep</b>.<br>
-      3. Strap the phone flat to the plywood beside the device, same place and orientation each run.<br>
-      4. Check the reading at rest is well below the target (it is your noise floor).<br>
-      5. <b>Start recording run</b>, shake until it beeps, keep the level steady for the required duration, then <b>Stop run</b>.<br>
-      6. <b>Save CSV</b> or <b>Share CSV…</b> (AirDrop, Mail, Files) after every run.
+      1. Open this page in Safari. Ring/silent switch to ring, volume up. Tap <b>Enable sensors &amp; sound</b>, allow motion, <b>Test beep</b>.<br>
+      2. Strap the phone flat to the plywood beside the device, same place and orientation for the whole sweep.<br>
+      3. Set up the sweep, then tap <b>Measure noise</b> with everything still.<br>
+      4. For each trial: reset the detector, tap <b>Start trial</b>, shake. A rising beep means you're on target; keep it steady. A long high tone means done: stop shaking.<br>
+      5. Answer <b>Detected</b> or <b>Not detected</b>. Use <b>Redo</b> if something went wrong (bumped device, wrong level).<br>
+      6. At the end, <b>Save all (.zip)</b> or <b>Share all…</b> (AirDrop to your Mac). Results are also kept on this phone until you start a new sweep.<br>
+      Low levels are small motions: 0.02 g at 1 Hz is only about 5 mm each way; at 2 Hz about 1 mm. Shake slowly for the low levels.
     </div>
   </div>
 </main>
@@ -170,82 +203,166 @@
 <script>
 (() => {
   "use strict";
-  const G = 9.80665, APP_VERSION = "shake-monitor 1.0";
+  const G = 9.80665, APP_VERSION = "shake-monitor 2.0 (sweep)";
   const $ = id => document.getElementById(id);
   const fmtG = v => (v == null || !isFinite(v)) ? "–" : v.toFixed(3);
   const fmtS = v => (v == null || !isFinite(v)) ? "–" : v.toFixed(1) + " s";
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const num = (id, def) => { const v = parseFloat($(id).value); return isFinite(v) ? v : def; };
 
-  // signal-processing state (declared first because settings reset it)
+  // ===== state (declared first) =====
+  let S = null;                      // active processing settings incl. target band
   let F = null, winBuf = [], freqBuf = [], contIn = 0, held = false, warmStart = null, lastT = null, lastTick = 0;
   let pendingEvent = "";
-  let recording = false;
+  let sensorOn = false, simTimer = null, simT0 = 0;
+  let phase = "ready";               // ready | running | postroll | await | finished
+  let rows = [], runT0 = null, live = null, postEnd = null, trialStartISO = null;
+  let pendingTrial = null;           // finished trial awaiting a detection answer
+  let noiseMeas = null;
+  let sweep = null;
+  let current = { metric: null, state: -1, held: false, contIn: 0 };
+  const chartBuf = [];
+  let rateCount = 0, rateT0 = performance.now(), lastSampleWall = 0;
 
-  // ---------- settings ----------
-  const SETTING_IDS = ["target","tol","metric","axis","hold","required","win","hpf","lpf","vol","tickWhileHeld","simAmp","simFreq"];
-  function loadSettings() {
+  // ===== settings =====
+  const SIG_IDS = ["tol", "metric", "axis", "hold", "required", "win", "hpf", "lpf", "vol", "tickWhileHeld", "postRoll"];
+  const SWEEP_IDS = ["swLabel", "swNotes", "swStart", "swEnd", "swStep", "swReps", "swOrder", "swControls"];
+  const SIM_IDS = ["simAmp", "simFreq", "simFollow"];
+  const ALL_IDS = [...SIG_IDS, ...SWEEP_IDS, ...SIM_IDS];
+  function loadFormPrefs() {
     try {
-      const s = JSON.parse(localStorage.getItem("shakeMonitorSettings") || "{}");
-      for (const id of SETTING_IDS) if (id in s) { const el = $(id); if (el.type === "checkbox") el.checked = s[id]; else el.value = s[id]; }
+      const s = JSON.parse(localStorage.getItem("shakeMonitorSettings2") || "{}");
+      for (const id of ALL_IDS) if (id in s) { const el = $(id); if (el.type === "checkbox") el.checked = s[id]; else el.value = s[id]; }
     } catch (e) {}
   }
-  function saveSettings() {
+  function saveFormPrefs() {
     try {
-      const s = {}; for (const id of SETTING_IDS) { const el = $(id); s[id] = el.type === "checkbox" ? el.checked : el.value; }
-      localStorage.setItem("shakeMonitorSettings", JSON.stringify(s));
+      const s = {}; for (const id of ALL_IDS) { const el = $(id); s[id] = el.type === "checkbox" ? el.checked : el.value; }
+      localStorage.setItem("shakeMonitorSettings2", JSON.stringify(s));
     } catch (e) {}
   }
-  function num(id, def) { const v = parseFloat($(id).value); return isFinite(v) ? v : def; }
-  function readSettings() {
-    const target = Math.max(1e-4, num("target", 0.05)), tol = Math.min(90, Math.max(1, num("tol", 20)));
+  function readSignalSettings() {
     return {
-      target, tol, lo: target * (1 - tol / 100), hi: target * (1 + tol / 100),
-      metric: $("metric").value, axis: $("axis").value,
-      hold: Math.max(0, num("hold", 5)), required: Math.max(1, num("required", 30)),
+      tol: Math.min(90, Math.max(1, num("tol", 20))), metric: $("metric").value, axis: $("axis").value,
+      hold: Math.max(0, num("hold", 3)), required: Math.max(1, num("required", 30)), postRoll: Math.max(0, num("postRoll", 5)),
       win: Math.max(0.25, num("win", 1)), hpf: Math.max(0.01, num("hpf", 0.2)), lpf: Math.max(0, num("lpf", 15)),
       tickWhileHeld: $("tickWhileHeld").checked
     };
   }
-  let S;
-  function applySettings() {
-    S = readSettings(); saveSettings();
-    $("levelSub").textContent = `Target ${fmtG(S.lo)} – ${fmtG(S.hi)} g (${S.metric}, ${axisName(S.axis)})`;
-    $("sReq").textContent = fmtS(S.required);
-    resetFilters();
+  function readSweepSettings() {
+    const start = Math.max(0.001, num("swStart", 0.02)), end = Math.max(start, num("swEnd", 0.10)), step = Math.max(0.001, num("swStep", 0.02));
+    return { label: $("swLabel").value.trim(), notes: $("swNotes").value.trim(), start, end, step,
+      reps: Math.round(Math.min(20, Math.max(1, num("swReps", 3)))), order: $("swOrder").value,
+      controls: Math.round(Math.min(20, Math.max(0, num("swControls", 0)))) };
   }
-  function axisName(a) { return a === "vec" ? "all axes" : a.toUpperCase() + " axis"; }
-  loadSettings();
-  for (const id of SETTING_IDS) $(id).addEventListener("change", () => { if (!recording) applySettings(); });
-  applySettings();
+  const axisName = a => a === "vec" ? "all axes" : a.toUpperCase() + " axis";
 
-  // ---------- audio ----------
+  // ===== sweep plan =====
+  function buildPlan(sw) {
+    const levels = [];
+    for (let i = 0; i < 50; i++) { const v = +(sw.start + i * sw.step).toFixed(4); if (v > sw.end + 1e-9) break; levels.push(v); }
+    let plan = [];
+    for (let c = 0; c < sw.controls; c++) plan.push({ kind: "control", target: 0, rep: c + 1 });
+    for (const v of levels) for (let r = 0; r < sw.reps; r++) plan.push({ kind: "level", target: v, rep: r + 1 });
+    if (sw.order === "random") for (let i = plan.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [plan[i], plan[j]] = [plan[j], plan[i]]; }
+    plan = plan.map((p, i) => ({ ...p, n: i + 1 }));
+    return { plan, levels };
+  }
+  function newSweepObject() {
+    const sw = readSweepSettings(), { plan, levels } = buildPlan(sw);
+    return { id: "sw" + Date.now().toString(36), created: new Date().toISOString(), config: sw, levels,
+      signal: readSignalSettings(), plan, cursor: 0, records: [], noise: null, exported: true };
+  }
+  const hasData = () => sweep && (sweep.records.length > 0 || phase !== "ready");
+  function rebuildIfEditable() {
+    saveFormPrefs();
+    if (sweep && sweep.records.length === 0 && phase === "ready") {
+      const noise = sweep.noise; sweep = newSweepObject(); sweep.noise = noise; persist();
+    } else if (sweep) { sweep.config.label = $("swLabel").value.trim(); sweep.config.notes = $("swNotes").value.trim(); persist(); }
+    applyTarget(); render();
+  }
+
+  function currentPlanItem() { return sweep && sweep.cursor < sweep.plan.length ? sweep.plan[sweep.cursor] : null; }
+  function applyTarget() {
+    const sig = sweep && sweep.records.length ? sweep.signal : readSignalSettings();
+    const item = currentPlanItem();
+    const lowest = sweep && sweep.levels.length ? sweep.levels[0] : 0.02;
+    const prev = S;
+    S = { ...sig };
+    if (item && item.kind === "control") { S.control = true; S.target = 0; S.lo = 0; S.hi = lowest * (1 - sig.tol / 100); }
+    else { const t = item ? item.target : (sweep ? sweep.levels[sweep.levels.length - 1] : 0.05); S.control = false; S.target = t; S.lo = t * (1 - sig.tol / 100); S.hi = t * (1 + sig.tol / 100); }
+    if (!prev || prev.hpf !== S.hpf || prev.lpf !== S.lpf || prev.axis !== S.axis || prev.win !== S.win) resetFilters();
+    $("sReq").textContent = fmtS(S.required);
+  }
+  function resetFilters() { F = null; winBuf = []; freqBuf = []; contIn = 0; held = false; warmStart = null; }
+
+  // ===== persistence (IndexedDB, fallback localStorage) =====
+  let dbp = null;
+  function db() {
+    if (dbp) return dbp;
+    dbp = new Promise((res, rej) => {
+      try {
+        const r = indexedDB.open("shakeMonitor", 1);
+        r.onupgradeneeded = () => r.result.createObjectStore("kv");
+        r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+      } catch (e) { rej(e); }
+    });
+    return dbp;
+  }
+  async function idbPut(key, val) { const d = await db(); return new Promise((res, rej) => { const tx = d.transaction("kv", "readwrite"); tx.objectStore("kv").put(val, key); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); }); }
+  async function idbGet(key) { const d = await db(); return new Promise((res, rej) => { const q = d.transaction("kv").objectStore("kv").get(key); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
+  let persistOK = null;
+  async function persist() {
+    if (!sweep) return;
+    try { await idbPut("sweep", JSON.parse(JSON.stringify(sweep))); persistOK = true; }
+    catch (e) {
+      try { localStorage.setItem("shakeMonitorSweep", JSON.stringify(sweep)); persistOK = true; } catch (e2) { persistOK = false; }
+    }
+    renderPersist();
+  }
+  async function restore() {
+    let s = null;
+    try { s = await idbGet("sweep"); } catch (e) {}
+    if (!s) { try { s = JSON.parse(localStorage.getItem("shakeMonitorSweep") || "null"); } catch (e) {} }
+    return s;
+  }
+  function renderPersist() {
+    const n = sweep ? sweep.records.length : 0;
+    $("persistInfo").textContent = persistOK === false
+      ? "Couldn't save on this phone. Export after every few trials so nothing is lost."
+      : `Kept on this phone (${n} record${n === 1 ? "" : "s"}) until you start a new sweep.` + (sweep && !sweep.exported && n ? " Not exported yet." : "");
+  }
+
+  // ===== audio =====
   let ctx = null;
   function unlockAudio() {
-    try {
-      if (navigator.audioSession) navigator.audioSession.type = "playback"; // lets Safari play through the silent switch where supported
-    } catch (e) {}
+    try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
     try {
       if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
       if (ctx.state === "suspended") ctx.resume();
       const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource(); s.buffer = b; s.connect(ctx.destination); s.start(0);
     } catch (e) {}
   }
-  function tone(freq, dur, delay = 0) {
+  function tone(freq, dur, delay = 0, type = "square") {
     if (!ctx) return;
     try {
       const vol = num("vol", 0.8); if (vol <= 0) return;
       const t0 = ctx.currentTime + delay, o = ctx.createOscillator(), g = ctx.createGain();
-      o.type = "square"; o.frequency.value = freq;
+      o.type = type; o.frequency.value = freq;
       g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.35 * vol, t0 + 0.01);
-      g.gain.setValueAtTime(0.35 * vol, t0 + dur - 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      g.gain.setValueAtTime(0.35 * vol, t0 + Math.max(0.02, dur - 0.03)); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
       o.connect(g); g.connect(ctx.destination); o.start(t0); o.stop(t0 + dur + 0.02);
     } catch (e) {}
   }
-  const beepHeld = () => { tone(880, 0.18); tone(1320, 0.18, 0.2); tone(1760, 0.3, 0.4); };
-  const beepLost = () => { tone(440, 0.25); tone(294, 0.4, 0.27); };
+  const beepOnTarget = () => { tone(880, 0.15); tone(1320, 0.15, 0.17); tone(1760, 0.25, 0.34); };
+  const beepLost = () => { tone(440, 0.22); tone(294, 0.35, 0.24); };
+  const beepDone = () => { tone(1568, 1.2, 0, "sine"); tone(2093, 1.2, 0, "sine"); tone(1568, 0.3, 1.35); tone(1568, 0.3, 1.75); };
+  const beepAsk = () => { tone(660, 0.12); tone(660, 0.12, 0.2); };
+  const beepFinished = () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.25, i * 0.22)); tone(1047, 0.8, 0.9, "sine"); };
   const tick = () => tone(1200, 0.06);
-  $("testBeepBtn").addEventListener("click", () => { unlockAudio(); beepHeld(); });
+  $("testBeepBtn").addEventListener("click", () => { unlockAudio(); beepOnTarget(); });
 
-  // ---------- wake lock ----------
+  // ===== wake lock =====
   let wakeLock = null;
   async function requestWake() {
     if (!("wakeLock" in navigator)) { $("wakeStatus").textContent = "not supported – turn off Auto-Lock"; return; }
@@ -257,86 +374,81 @@
   }
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible" && sensorOn) requestWake();
-    if (document.visibilityState === "hidden") pendingEvent = appendEvent(pendingEvent, "page_hidden");
+    if (document.visibilityState === "hidden") pendingEvent = addEv(pendingEvent, "page_hidden");
   });
 
-  // ---------- signal processing ----------
-  function resetFilters() { F = null; winBuf = []; freqBuf = []; contIn = 0; held = false; warmStart = null; }
-  const appendEvent = (cur, ev) => cur ? cur + ";" + ev : ev;
-
+  // ===== signal processing =====
+  const addEv = (cur, ev) => cur ? cur + ";" + ev : ev;
   function hp(st, x, dt) { const rc = 1 / (2 * Math.PI * S.hpf), a = rc / (rc + dt); st.y = a * (st.y + x - st.x); st.x = x; return st.y; }
   function lp(st, x, dt) { if (S.lpf <= 0) return x; const rc = 1 / (2 * Math.PI * S.lpf), b = dt / (rc + dt); st.y += b * (x - st.y); return st.y; }
 
-  // live display state
-  const chartBuf = []; // {t, a, m}
-  let rateCount = 0, rateT0 = performance.now(), lastSampleWall = 0;
-  let current = { metric: null, state: "off" };
-
   function processSample(t, ax, ay, az) {
-    // t in seconds (monotonic), accelerations in g including gravity
-    let dt = lastT == null ? 1 / 60 : t - lastT;
-    let gap = false;
-    if (lastT != null && dt > 0.25) { gap = true; pendingEvent = appendEvent(pendingEvent, "gap_" + dt.toFixed(2) + "s"); }
+    let dt = lastT == null ? 1 / 60 : t - lastT, gap = false;
+    if (lastT != null && dt > 0.25) { gap = true; pendingEvent = addEv(pendingEvent, "gap_" + dt.toFixed(2) + "s"); }
     lastT = t;
     if (!(dt > 0)) return;
     const dtf = Math.min(Math.max(dt, 0.002), 0.1);
     if (gap || !F) {
       F = { hx: { x: ax, y: 0 }, hy: { x: ay, y: 0 }, hz: { x: az, y: 0 }, lx: { y: 0 }, ly: { y: 0 }, lz: { y: 0 } };
       winBuf = []; contIn = 0; warmStart = t;
-      if (held) { held = false; beepLost(); pendingEvent = appendEvent(pendingEvent, "hold_lost"); }
+      if (held) { held = false; pendingEvent = addEv(pendingEvent, "hold_lost"); }
     }
     const fx = lp(F.lx, hp(F.hx, ax, dtf), dtf), fy = lp(F.ly, hp(F.hy, ay, dtf), dtf), fz = lp(F.lz, hp(F.hz, az, dtf), dtf);
     const sig = S.axis === "x" ? fx : S.axis === "y" ? fy : S.axis === "z" ? fz : Math.hypot(fx, fy, fz);
     const a = Math.abs(sig);
-
     winBuf.push({ t, a });
     while (winBuf.length && winBuf[0].t < t - S.win) winBuf.shift();
     let pk = 0, ss = 0; for (const s of winBuf) { if (s.a > pk) pk = s.a; ss += s.a * s.a; }
-    const rms = Math.sqrt(ss / winBuf.length);
-    const m = S.metric === "rms" ? rms : pk;
+    const rms = Math.sqrt(ss / winBuf.length), m = S.metric === "rms" ? rms : pk;
 
-    // warm-up: wait for one full window plus filter settling
-    const warm = (t - warmStart) >= Math.max(S.win, 1 / (2 * Math.PI * S.hpf) * 3);
-    let state; // -1 warmup, 0 below, 1 in, 2 above
+    const warm = (t - warmStart) >= Math.max(S.win, 3 / (2 * Math.PI * S.hpf));
+    let state;
     if (!warm) state = -1; else if (m < S.lo) state = 0; else if (m > S.hi) state = 2; else state = 1;
 
+    const quiet = phase === "postroll" || phase === "await";
     if (state === 1) {
       contIn += dtf;
-      if (!held && contIn >= S.hold) { held = true; beepHeld(); pendingEvent = appendEvent(pendingEvent, "hold_reached"); lastTick = t; }
-      if (held && S.tickWhileHeld && t - lastTick >= 1) { tick(); lastTick = t; }
+      if (!held && contIn >= S.hold) {
+        held = true; pendingEvent = addEv(pendingEvent, "on_target"); lastTick = t;
+        if (!S.control && !quiet) beepOnTarget();
+      }
+      if (held && S.tickWhileHeld && !S.control && !quiet && t - lastTick >= 1) { tick(); lastTick = t; }
     } else {
-      if (held) { held = false; beepLost(); pendingEvent = appendEvent(pendingEvent, "hold_lost"); }
+      if (held) { held = false; pendingEvent = addEv(pendingEvent, "off_target"); if (!S.control && phase === "running") beepLost(); }
       contIn = 0;
     }
 
-    freqBuf.push({ t, fx, fy, fz });
-    while (freqBuf.length && freqBuf[0].t < t - 4) freqBuf.shift();
-
-    chartBuf.push({ t, a, m });
-    while (chartBuf.length && chartBuf[0].t < t - 20) chartBuf.shift();
-
+    freqBuf.push({ t, fx, fy, fz }); while (freqBuf.length && freqBuf[0].t < t - 4) freqBuf.shift();
+    chartBuf.push({ t, a, m }); while (chartBuf.length && chartBuf[0].t < t - 20) chartBuf.shift();
     current = { metric: m, state, held, contIn };
     rateCount++; lastSampleWall = performance.now();
 
-    if (recording) {
+    if (noiseMeas && state !== -1) {
+      noiseMeas.vals.push(m); noiseMeas.peak = Math.max(noiseMeas.peak, a);
+      if (noiseMeas.t0 == null) noiseMeas.t0 = t;
+      if (t - noiseMeas.t0 >= 5) finishNoise();
+    }
+
+    if (phase === "running" || phase === "postroll") {
       if (runT0 == null) runT0 = t;
       rows.push([t - runT0, Date.now(), ax, ay, az, fx, fy, fz, sig, pk, rms, m, state, held ? 1 : 0, pendingEvent]);
       pendingEvent = "";
-      // live run stats
       live.dur = t - runT0;
-      if (state === 1) { live.inTime += dtf; live.stretch += dtf; if (live.stretch > live.longest) live.longest = live.stretch; }
+      if (state === 1) { live.inTime += gap ? 0 : dtf; live.stretch += gap ? 0 : dtf; if (live.stretch > live.longest) live.longest = live.stretch; }
       else live.stretch = 0;
-      if (gap) live.gaps++;
+      if (gap) { live.gaps++; live.stretch = 0; }
       if (a > live.peak) live.peak = a;
+      if (phase === "running") {
+        const done = S.control ? live.dur >= S.required : live.longest >= S.required;
+        if (done) { phase = "postroll"; postEnd = t + S.postRoll; rows[rows.length - 1][14] = addEv(rows[rows.length - 1][14], "trial_complete"); beepDone(); render(); }
+      } else if (t >= postEnd) finishTrial("complete");
     } else pendingEvent = "";
   }
 
-  // ---------- frequency estimate (non-uniform DFT) ----------
   function dominantFreq(samples, fmin = 0.3, fmax = 12, step = 0.05) {
     if (samples.length < 20) return null;
-    // choose axis with largest variance
-    const keys = ["fx", "fy", "fz"]; let best = "fx", bv = -1;
-    for (const k of keys) { let s = 0; for (const p of samples) s += p[k] * p[k]; if (s > bv) { bv = s; best = k; } }
+    let best = "fx", bv = -1;
+    for (const k of ["fx", "fy", "fz"]) { let s = 0; for (const p of samples) s += p[k] * p[k]; if (s > bv) { bv = s; best = k; } }
     const t0 = samples[0].t; let bestF = null, bestP = -1;
     for (let f = fmin; f <= fmax + 1e-9; f += step) {
       const w = 2 * Math.PI * f; let re = 0, im = 0;
@@ -346,106 +458,126 @@
     return { f: bestF, axis: best.slice(1) };
   }
 
-  // ---------- sensors ----------
-  let sensorOn = false, simTimer = null;
+  // ===== sensors =====
   function onMotion(e) {
     const acc = e.accelerationIncludingGravity;
     if (!acc || acc.x == null) return;
     processSample(performance.now() / 1000, acc.x / G, acc.y / G, acc.z / G);
   }
   function showMsg(html) { const m = $("msg"); m.innerHTML = html; m.style.display = html ? "block" : "none"; }
-
   $("enableBtn").addEventListener("click", async () => {
     unlockAudio(); showMsg("");
     if (sensorOn) return;
-    applySettings();
     if ($("simOn").checked) {
-      const t0 = performance.now() / 1000;
+      simT0 = performance.now() / 1000;
       simTimer = setInterval(() => {
-        const t = performance.now() / 1000, amp = num("simAmp", 0.05), f = num("simFreq", 2);
-        const n = () => (Math.random() - 0.5) * 0.006;
-        processSample(t, amp * Math.sin(2 * Math.PI * f * (t - t0)) + n(), n(), -1 + n());
+        const t = performance.now() / 1000, f = num("simFreq", 1.5);
+        let amp = num("simAmp", 0.05);
+        if ($("simFollow").checked) amp = (phase === "running" && S) ? S.target : 0;
+        const n = () => (Math.random() - 0.5) * 0.004;
+        processSample(t, amp * Math.sin(2 * Math.PI * f * (t - simT0)) + n(), n(), -1 + n());
       }, 1000 / 60);
-      startedSensor("simulated");
-      return;
+      startedSensor("simulated"); return;
     }
-    if (!window.isSecureContext) {
-      showMsg("This page isn't loaded over HTTPS, so the phone won't share motion data. Host it on an https:// address (for example GitHub Pages) and open that in Safari.");
-      return;
-    }
+    if (!window.isSecureContext) { showMsg("This page isn't loaded over HTTPS, so the phone won't share motion data. Open it from an https:// address in Safari."); return; }
     if (typeof DeviceMotionEvent === "undefined") { showMsg("This browser doesn't expose a motion sensor. Open the page in Safari on the iPhone."); return; }
     try {
       if (typeof DeviceMotionEvent.requestPermission === "function") {
         const r = await DeviceMotionEvent.requestPermission();
-        if (r !== "granted") { showMsg("Motion access was denied. In Safari, tap the aA button → Website Settings, or reload the page and allow it."); return; }
+        if (r !== "granted") { showMsg("Motion access was denied. Reload the page and allow it, or check Safari's website settings (aA button)."); return; }
       }
-    } catch (e) {
-      showMsg("Couldn't request motion access (" + e.message + "). If you opened this inside another app, open it in Safari instead."); return;
-    }
+    } catch (e) { showMsg("Couldn't request motion access (" + esc(e.message) + "). Open this page directly in Safari."); return; }
     window.addEventListener("devicemotion", onMotion);
     startedSensor("phone");
-    setTimeout(() => {
-      if (rateCount === 0 && lastSampleWall === 0) showMsg("No motion data is arriving. Open this page directly in Safari (not inside the Claude app or another app's preview) over https://, and allow motion access.");
-    }, 2000);
+    setTimeout(() => { if (lastSampleWall === 0) showMsg("No motion data is arriving. Open this page directly in Safari over https:// (not inside another app or a laptop browser) and allow motion access."); }, 2000);
   });
   function startedSensor(kind) {
     sensorOn = true; $("sensorStatus").textContent = kind; $("sensorDot").style.background = "var(--in)";
-    $("enableBtn").disabled = true; $("startBtn").disabled = false; $("simOn").disabled = true;
-    requestWake();
+    $("enableBtn").disabled = true; $("simOn").disabled = true; requestWake(); render();
   }
 
-  // ---------- recording ----------
-  let rows = [], runT0 = null, runMeta = null, live = null;
-  const runs = []; // completed {meta, summary, csv}
+  // ===== noise measurement =====
+  $("noiseBtn").addEventListener("click", () => {
+    if (!sensorOn || phase === "running" || phase === "postroll") return;
+    noiseMeas = { vals: [], peak: 0, t0: null }; $("noiseBtn").disabled = true; $("noiseBtn").textContent = "Measuring… keep still";
+  });
+  function finishNoise() {
+    const v = noiseMeas.vals, mean = v.reduce((a, b) => a + b, 0) / v.length, max = Math.max(...v);
+    sweep.noise = { at: new Date().toISOString(), metric: S.metric, mean, max, peakInst: noiseMeas.peak };
+    noiseMeas = null; $("noiseBtn").textContent = "Measure noise (keep still 5 s)"; tone(990, 0.15);
+    persist(); render();
+  }
 
+  // ===== trials =====
   $("startBtn").addEventListener("click", () => {
     unlockAudio();
-    if (!sensorOn) return;
-    applySettings();
-    recording = true; rows = []; runT0 = null; pendingEvent = "run_start";
+    if (!sensorOn || phase !== "ready" || !currentPlanItem()) return;
+    if (sweep.records.length === 0) { sweep.signal = readSignalSettings(); sweep.config = { ...sweep.config, ...readSweepSettings() }; }
+    applyTarget();
+    phase = "running"; rows = []; runT0 = null; postEnd = null; trialStartISO = new Date().toISOString();
+    pendingEvent = "trial_start";
     live = { dur: 0, inTime: 0, stretch: 0, longest: 0, peak: 0, gaps: 0 };
-    runMeta = { label: $("runLabel").value.trim() || ("Run " + (runs.length + 1)), notes: $("runNotes").value.trim(),
-      startISO: new Date().toISOString(), settings: { ...S }, source: $("sensorStatus").textContent, ua: navigator.userAgent };
-    document.body.classList.add("runActive");
-    $("startBtn").disabled = true; $("stopBtn").disabled = false;
-    checkpointTimer = setInterval(checkpoint, 30000);
+    sweep.exported = false;
+    render();
+  });
+  $("abortBtn").addEventListener("click", () => {
+    if (phase === "running" || phase === "postroll") finishTrial("aborted");
   });
 
-  let checkpointTimer = null;
-  $("stopBtn").addEventListener("click", () => {
-    if (!recording) return;
-    if (rows.length) rows[rows.length - 1][14] = appendEvent(rows[rows.length - 1][14], "run_stop");
-    recording = false; clearInterval(checkpointTimer);
-    document.body.classList.remove("runActive");
-    $("startBtn").disabled = false; $("stopBtn").disabled = true;
-    runMeta.stopISO = new Date().toISOString();
-    const summary = summarize(rows, runMeta.settings);
-    const csv = buildCSV(runMeta, summary, rows);
-    const run = { meta: runMeta, summary, csv };
-    runs.push(run); showSummary(run); renderHistory();
-    try { localStorage.setItem("shakeMonitorLastRun", JSON.stringify({ label: runMeta.label, startISO: runMeta.startISO, csv, saved: false })); } catch (e) {}
-    const n = runs.length + 1; if (/^Run \d+$/.test($("runLabel").value.trim()) || !$("runLabel").value.trim()) $("runLabel").value = "Run " + n;
-  });
-
-  function checkpoint() {
-    if (!recording || rows.length > 60000) return;
-    try {
-      const meta = { ...runMeta, stopISO: "(interrupted)" };
-      const csv = buildCSV(meta, summarize(rows, runMeta.settings), rows);
-      localStorage.setItem("shakeMonitorLastRun", JSON.stringify({ label: runMeta.label + " (partial)", startISO: runMeta.startISO, csv, saved: false }));
-    } catch (e) {}
+  function finishTrial(how) {
+    const item = currentPlanItem();
+    if (rows.length) rows[rows.length - 1][14] = addEv(rows[rows.length - 1][14], how === "aborted" ? "trial_aborted" : "trial_stop");
+    const summary = summarize(rows, S);
+    const attempt = sweep.records.filter(r => r.n === item.n).length + 1;
+    const rec = { rec: sweep.records.length + 1, n: item.n, kind: item.kind, target: item.target, rep: item.rep, attempt,
+      startISO: trialStartISO, stopISO: new Date().toISOString(), band: [S.lo, S.hi], summary, lines: rowsToLines(rows),
+      status: how === "aborted" ? "aborted" : "pending", detected: null, note: "" };
+    rows = []; live = null;
+    if (how === "aborted") {
+      sweep.records.push(rec); phase = "ready"; persist(); render(); return;
+    }
+    pendingTrial = rec; phase = "await"; $("trialNote").value = ""; beepAsk(); render();
   }
-  window.addEventListener("beforeunload", e => { if (recording) { e.preventDefault(); e.returnValue = ""; } });
+  function answer(detected) {
+    if (phase !== "await" || !pendingTrial) return;
+    const rec = pendingTrial; pendingTrial = null;
+    rec.note = $("trialNote").value.trim();
+    if (detected === "redo") { rec.status = "redo"; }
+    else { rec.status = "done"; rec.detected = detected; sweep.cursor++; }
+    sweep.records.push(rec);
+    phase = sweep.cursor >= sweep.plan.length ? "finished" : "ready";
+    applyTarget(); persist(); render();
+    if (phase === "finished") beepFinished();
+  }
+  $("detYesBtn").addEventListener("click", () => answer(true));
+  $("detNoBtn").addEventListener("click", () => answer(false));
+  $("redoBtn").addEventListener("click", () => answer("redo"));
 
-  // columns: 0 t,1 epoch,2 ax,3 ay,4 az,5 fx,6 fy,7 fz,8 sig,9 pk,10 rms,11 metric,12 state,13 held,14 event
+  // ===== new sweep (tap twice to confirm) =====
+  let confirmUntil = 0;
+  $("newSweepBtn").addEventListener("click", () => {
+    if (phase === "running" || phase === "postroll" || phase === "await") return;
+    const needConfirm = sweep && sweep.records.length > 0;
+    if (needConfirm && Date.now() > confirmUntil) {
+      confirmUntil = Date.now() + 4000;
+      $("newSweepBtn").textContent = sweep.exported ? "Tap again to clear results" : "Not exported! Tap again to delete";
+      setTimeout(() => { $("newSweepBtn").textContent = "New sweep"; }, 4000);
+      return;
+    }
+    confirmUntil = 0; $("newSweepBtn").textContent = "New sweep";
+    sweep = newSweepObject(); phase = "ready"; applyTarget(); persist(); render();
+  });
+
+  // ===== analysis =====
+  // row: 0 t,1 epoch,2 ax,3 ay,4 az,5 fx,6 fy,7 fz,8 sig,9 pk,10 rms,11 metric,12 state,13 held,14 event
   function summarize(R, st) {
     const out = { samples: R.length };
     if (!R.length) return out;
     const dur = R[R.length - 1][0];
-    let inTime = 0, heldTime = 0, longest = 0, cur = 0, curStart = 0, bestStart = 0, bestEnd = 0, gaps = 0, maxGap = 0, peakInst = 0, maxMetric = 0;
+    let inTime = 0, longest = 0, cur = 0, curStart = 0, bestStart = 0, bestEnd = 0, gaps = 0, maxGap = 0, peakInst = 0, maxMetric = 0;
     for (let i = 0; i < R.length; i++) {
       const r = R[i], dt = i ? R[i][0] - R[i - 1][0] : 0, isGap = /gap_/.test(r[14]);
-      if (isGap) gaps++;
+      if (isGap) { gaps++; cur = 0; }
       if (i && dt > maxGap) maxGap = dt;
       const dtc = isGap ? 0 : dt;
       if (Math.abs(r[8]) > peakInst) peakInst = Math.abs(r[8]);
@@ -455,177 +587,299 @@
         inTime += dtc; cur += dtc;
         if (cur > longest) { longest = cur; bestStart = curStart; bestEnd = i; }
       } else cur = 0;
-      if (r[13]) heldTime += dtc;
     }
-    out.duration = dur; out.rate = R.length > 1 ? (R.length - 1) / dur : null;
-    out.inTime = inTime; out.inPct = dur > 0 ? 100 * inTime / dur : 0; out.heldTime = heldTime;
-    out.longest = longest; out.gaps = gaps; out.maxGap = maxGap; out.peakInst = peakInst; out.maxMetric = maxMetric;
-    out.pass = longest >= st.required && gaps === 0 ? true : (longest >= st.required ? "gaps" : false);
-    if (longest > 0) {
-      const seg = R.slice(bestStart, bestEnd + 1);
+    Object.assign(out, { duration: dur, rate: R.length > 1 ? (R.length - 1) / dur : null, inTime, longest, gaps, maxGap, peakInst, maxMetric });
+    // valid: required time met without a data gap
+    out.valid = st.control ? (dur >= st.required && gaps === 0) : (longest >= st.required - 0.05 && gaps === 0);
+    // characterize the shaking: longest in-range stretch for level trials, whole trial for controls
+    let seg = null;
+    if (st.control) seg = R; else if (longest > 0) seg = R.slice(bestStart, bestEnd + 1);
+    if (seg && seg.length) {
       let mn = Infinity, mx = 0, sm = 0, ss = 0;
       for (const r of seg) { mn = Math.min(mn, r[11]); mx = Math.max(mx, r[11]); sm += r[11]; ss += r[8] * r[8]; }
-      out.seg = { start: seg[0][0], end: seg[seg.length - 1][0], metricMean: sm / seg.length, metricMin: mn, metricMax: mx,
-        rmsAccel: Math.sqrt(ss / seg.length) };
-      const fseg = seg.length > 1800 ? seg.slice(-1800) : seg; // last 30 s of the stretch
-      const df = dominantFreq(fseg.map(r => ({ t: r[0], fx: r[5], fy: r[6], fz: r[7] })), 0.2, 15, 0.02);
-      if (df) { out.seg.freq = df.f; out.seg.freqAxis = df.axis; }
+      out.seg = { start: seg[0][0], end: seg[seg.length - 1][0], metricMean: sm / seg.length, metricMin: mn, metricMax: mx, rmsAccel: Math.sqrt(ss / seg.length) };
+      if (!st.control) {
+        const fseg = seg.length > 1800 ? seg.slice(-1800) : seg;
+        const df = dominantFreq(fseg.map(r => ({ t: r[0], fx: r[5], fy: r[6], fz: r[7] })), 0.2, 15, 0.02);
+        if (df) { out.seg.freq = df.f; out.seg.freqAxis = df.axis; }
+      }
     }
     return out;
   }
-
-  function summaryLines(meta, s) {
-    const st = meta.settings, L = [];
-    L.push(`Run: ${meta.label}`);
-    if (meta.notes) L.push(`Notes: ${meta.notes}`);
-    L.push(`Started: ${meta.startISO}  Stopped: ${meta.stopISO}`);
-    L.push(`Target: ${fmtG(st.lo)}-${fmtG(st.hi)} g ${st.metric} over ${st.win} s, ${axisName(st.axis)}; required ${st.required} s continuous`);
-    if (!s.samples) { L.push("No samples recorded."); return L; }
-    const verdict = s.pass === true ? "PASS" : s.pass === "gaps" ? "CHECK (met duration but data had gaps)" : "FAIL (did not hold the range long enough)";
-    L.push(`Result: ${verdict}`);
-    L.push(`Duration ${fmtS(s.duration)}, ${s.samples} samples at ${s.rate ? s.rate.toFixed(1) : "–"} Hz, ${s.gaps} gaps (largest interval ${(s.maxGap * 1000).toFixed(0)} ms)`);
-    L.push(`Time in range ${fmtS(s.inTime)} (${s.inPct.toFixed(0)}%), longest continuous ${fmtS(s.longest)}, time held after ${st.hold} s hold ${fmtS(s.heldTime)}`);
-    if (s.seg) {
-      L.push(`Longest stretch ${s.seg.start.toFixed(1)}-${s.seg.end.toFixed(1)} s: ${st.metric} mean ${fmtG(s.seg.metricMean)} g (min ${fmtG(s.seg.metricMin)}, max ${fmtG(s.seg.metricMax)}), acceleration RMS ${fmtG(s.seg.rmsAccel)} g` +
-        (s.seg.freq ? `, dominant frequency ${s.seg.freq.toFixed(2)} Hz on ${s.seg.freqAxis.toUpperCase()} axis` : ""));
+  function csvCell(v) { v = v == null ? "" : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+  const f5 = v => (v == null || !isFinite(v)) ? "" : v.toFixed(5);
+  const f3 = v => (v == null || !isFinite(v)) ? "" : v.toFixed(3);
+  function rowsToLines(R) {
+    const out = new Array(R.length);
+    for (let i = 0; i < R.length; i++) {
+      const r = R[i];
+      out[i] = r[0].toFixed(4) + "," + r[1] + "," + f5(r[2]) + "," + f5(r[3]) + "," + f5(r[4]) + "," + f5(r[5]) + "," + f5(r[6]) + "," +
+        f5(r[7]) + "," + f5(r[8]) + "," + f5(r[9]) + "," + f5(r[10]) + "," + f5(r[11]) + "," + r[12] + "," + r[13] + "," + csvCell(r[14]);
     }
-    L.push(`Highest instantaneous acceleration ${fmtG(s.peakInst)} g; highest rolling ${st.metric} ${fmtG(s.maxMetric)} g`);
+    return out.join("\n");
+  }
+
+  function levelStats() {
+    const keys = [];
+    if (sweep.plan.some(p => p.kind === "control")) keys.push({ kind: "control", target: 0 });
+    for (const v of sweep.levels) keys.push({ kind: "level", target: v });
+    return keys.map(k => {
+      const recs = sweep.records.filter(r => r.status === "done" && r.kind === k.kind && r.target === k.target);
+      const valid = recs.filter(r => r.summary.valid);
+      const det = valid.filter(r => r.detected === true).length;
+      const ach = valid.map(r => r.summary.seg ? r.summary.seg.metricMean : null).filter(v => v != null);
+      const planned = sweep.plan.filter(p => p.kind === k.kind && p.target === k.target).length;
+      return { ...k, planned, done: recs.length, valid: valid.length, detected: det, notDetected: valid.length - det,
+        rate: valid.length ? det / valid.length : null, achieved: ach.length ? ach.reduce((a, b) => a + b, 0) / ach.length : null,
+        invalidDone: recs.length - valid.length };
+    });
+  }
+  const levelName = (kind, target) => kind === "control" ? "control (still)" : fmtG(target) + " g";
+
+  function summaryText() {
+    const c = sweep.config, L = [];
+    L.push(`Sweep: ${c.label || "(unnamed)"}${c.notes ? " — " + c.notes : ""}`);
+    L.push(`Created ${sweep.created}; ${sweep.records.filter(r => r.status === "done").length} of ${sweep.plan.length} trials done`);
+    L.push(`Levels ${sweep.levels.map(fmtG).join(", ")} g ×${c.reps}${c.controls ? ` + ${c.controls} control` : ""}; ${sweep.signal.metric} over ${sweep.signal.win} s, ${axisName(sweep.signal.axis)}, ±${sweep.signal.tol}%, ${sweep.signal.required} s in range`);
+    if (sweep.noise) L.push(`Noise floor (still): mean ${fmtG(sweep.noise.mean)} g, max ${fmtG(sweep.noise.max)} g ${sweep.noise.metric}`);
+    for (const s of levelStats()) L.push(`${levelName(s.kind, s.target)}: detected ${s.detected}/${s.valid} valid` + (s.achieved != null ? `, achieved ${fmtG(s.achieved)} g` : "") + (s.invalidDone ? ` (${s.invalidDone} invalid)` : ""));
     return L;
   }
 
-  function csvCell(v) { return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
-  function buildCSV(meta, s, R) {
-    const st = meta.settings, H = [];
-    H.push(`# ${APP_VERSION}`);
-    for (const l of summaryLines(meta, s)) H.push("# " + l.replace(/\n/g, " "));
-    H.push(`# settings: ${JSON.stringify(st)}`);
-    H.push(`# source: ${meta.source}; user agent: ${meta.ua}`);
-    H.push("# units: g (1 g = 9.80665 m/s^2). ax/ay/az include gravity; fx/fy/fz are high/low-pass filtered. signal_g is the selected axis (or vector magnitude). state: -1 warm-up, 0 below, 1 in range, 2 above.");
-    H.push("t_s,epoch_ms,ax_g,ay_g,az_g,fx_g,fy_g,fz_g,signal_g,rolling_peak_g,rolling_rms_g,metric_g,state,held,event");
-    const lines = new Array(R.length);
-    for (let i = 0; i < R.length; i++) {
-      const r = R[i];
-      lines[i] = r[0].toFixed(4) + "," + r[1] + "," + r[2].toFixed(5) + "," + r[3].toFixed(5) + "," + r[4].toFixed(5) + "," +
-        r[5].toFixed(5) + "," + r[6].toFixed(5) + "," + r[7].toFixed(5) + "," + r[8].toFixed(5) + "," + r[9].toFixed(5) + "," +
-        r[10].toFixed(5) + "," + r[11].toFixed(5) + "," + r[12] + "," + r[13] + "," + csvCell(r[14]);
+  // ===== export =====
+  function buildFiles() {
+    const c = sweep.config, sg = sweep.signal, now = new Date().toISOString();
+    const head = [
+      `# ${APP_VERSION}`, `# sweep_id: ${sweep.id}`, `# name: ${c.label}`, `# notes: ${c.notes}`, `# created: ${sweep.created}`, `# exported: ${now}`,
+      `# sweep: ${JSON.stringify(c)}`, `# signal: ${JSON.stringify(sg)}`,
+      `# noise_floor: ${sweep.noise ? JSON.stringify(sweep.noise) : "not measured"}`,
+      `# plan_order: ${sweep.plan.map(p => p.kind === "control" ? "C" : p.target).join(" ")}`,
+      `# device: ${navigator.userAgent}`, `# source: ${$("sensorStatus").textContent}`
+    ].map(l => l.replace(/\n/g, " "));
+    const tCols = "record,trial,attempt,kind,target_g,band_lo_g,band_hi_g,rep,status,valid,detected,note,start_iso,stop_iso,duration_s,time_in_range_s,longest_in_range_s,achieved_metric_mean_g,achieved_metric_min_g,achieved_metric_max_g,accel_rms_g,dominant_hz,dominant_axis,max_metric_g,peak_instant_g,gaps,max_interval_s,samples,sample_rate_hz";
+    const tLines = sweep.records.map(r => {
+      const s = r.summary, sgm = s.seg || {};
+      return [r.rec, r.n, r.attempt, r.kind, r.target, f5(r.band[0]), f5(r.band[1]), r.rep, r.status, s.valid ? 1 : 0,
+        r.detected === true ? 1 : r.detected === false ? 0 : "", csvCell(r.note), r.startISO, r.stopISO, f3(s.duration), f3(s.inTime), f3(s.longest),
+        f5(sgm.metricMean), f5(sgm.metricMin), f5(sgm.metricMax), f5(sgm.rmsAccel), sgm.freq != null ? sgm.freq.toFixed(2) : "", sgm.freqAxis || "",
+        f5(s.maxMetric), f5(s.peakInst), s.gaps ?? "", f3(s.maxGap), s.samples, s.rate ? s.rate.toFixed(1) : ""].join(",");
+    });
+    const trials = head.join("\n") + "\n" + tCols + "\n" + tLines.join("\n") + "\n";
+
+    const lCols = "kind,target_g,planned_trials,completed_trials,valid_trials,detected,not_detected,detection_rate,mean_achieved_metric_g,invalid_completed_trials";
+    const lLines = levelStats().map(s => [s.kind, s.target, s.planned, s.done, s.valid, s.detected, s.notDetected, s.rate == null ? "" : s.rate.toFixed(3), f5(s.achieved), s.invalidDone].join(","));
+    const levels = head.join("\n") + "\n" + lCols + "\n" + lLines.join("\n") + "\n";
+
+    const sCols = "record,trial,attempt,target_g,status,t_s,epoch_ms,ax_g,ay_g,az_g,fx_g,fy_g,fz_g,signal_g,rolling_peak_g,rolling_rms_g,metric_g,state,held,event";
+    const parts = [head.join("\n"), sCols];
+    for (const r of sweep.records) {
+      if (!r.lines) continue;
+      const pre = `${r.rec},${r.n},${r.attempt},${r.target},${r.status},`;
+      parts.push(r.lines.split("\n").map(l => pre + l).join("\n"));
     }
-    return H.join("\n") + "\n" + lines.join("\n") + "\n";
+    const samples = parts.join("\n") + "\n";
+
+    const readme = [
+      "Shake Monitor sweep export", "",
+      `Sweep: ${c.label || "(unnamed)"}   Exported: ${now}`, "",
+      ...summaryText(), "",
+      "Files",
+      "  trials.csv  one row per trial attempt (including redo and aborted attempts, which are kept but not counted).",
+      "  levels.csv  detection rate per level, counting only completed (status=done) and valid trials.",
+      "  samples.csv every sensor sample of every attempt, keyed by record/trial/attempt.",
+      "", "Definitions",
+      "  All accelerations are in g (1 g = 9.80665 m/s^2), measured by the phone strapped to the rig.",
+      "  ax/ay/az include gravity. fx/fy/fz are high-pass (gravity removed) and low-pass filtered.",
+      "  signal_g is the selected axis, or the vector magnitude of fx,fy,fz when the axis is 'all axes'.",
+      "  metric_g is the rolling peak or RMS of |signal| over the rolling window (see 'signal' settings).",
+      "  state: -1 warm-up, 0 below band, 1 in band, 2 above band. held: 1 once in band for the hold time.",
+      "  A level trial is valid if it stayed in band continuously for the required time with no data gaps.",
+      "  A control trial records the rig at rest for the required time; detected=1 there is a false alarm.",
+      "  achieved_metric_* describe the longest in-band stretch (whole trial for controls).",
+      "  detected: 1 detected, 0 not detected, blank not answered.",
+      "", "Python", "  import pandas as pd",
+      "  trials = pd.read_csv('trials.csv', comment='#')",
+      "  samples = pd.read_csv('samples.csv', comment='#')"
+    ].join("\n") + "\n";
+    return [["README.txt", readme], ["trials.csv", trials], ["levels.csv", levels], ["samples.csv", samples]];
+  }
+  function zipName() {
+    const d = sweep.created.replace(/[:]/g, "").replace(/\..+/, "");
+    return ("shake_sweep_" + (sweep.config.label || "unnamed").replace(/[^\w\-]+/g, "_") + "_" + d + ".zip").replace(/_+/g, "_");
   }
 
-  function fileName(meta) {
-    const d = meta.startISO.replace(/[:]/g, "").replace(/\..+/, "");
-    return ("shake_" + meta.label.replace(/[^\w\-]+/g, "_") + "_" + d + ".csv").replace(/_+/g, "_");
+  // minimal ZIP writer (stored, no compression)
+  const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(b) { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+  function makeZip(files, folder) {
+    const enc = new TextEncoder(), d = new Date();
+    const time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+    const date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    const chunks = [], central = []; let offset = 0;
+    for (const [name, text] of files) {
+      const nm = enc.encode(folder + "/" + name), data = enc.encode(text), crc = crc32(data);
+      const h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
+      h.setUint16(10, time, true); h.setUint16(12, date, true); h.setUint32(14, crc, true);
+      h.setUint32(18, data.length, true); h.setUint32(22, data.length, true); h.setUint16(26, nm.length, true); h.setUint16(28, 0, true);
+      chunks.push(new Uint8Array(h.buffer), nm, data);
+      const c = new DataView(new ArrayBuffer(46));
+      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true);
+      c.setUint16(12, time, true); c.setUint16(14, date, true); c.setUint32(16, crc, true); c.setUint32(20, data.length, true); c.setUint32(24, data.length, true);
+      c.setUint16(28, nm.length, true); c.setUint16(30, 0, true); c.setUint16(32, 0, true); c.setUint16(34, 0, true); c.setUint16(36, 0, true);
+      c.setUint32(38, 0, true); c.setUint32(42, offset, true);
+      central.push(new Uint8Array(c.buffer), nm);
+      offset += 30 + nm.length + data.length;
+    }
+    const cdSize = central.reduce((a, b) => a + b.length, 0);
+    const e = new DataView(new ArrayBuffer(22));
+    e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true);
+    e.setUint32(12, cdSize, true); e.setUint32(16, offset, true);
+    return new Blob([...chunks, ...central, new Uint8Array(e.buffer)], { type: "application/zip" });
   }
-  function saveCSV(csv, name) {
+  function exportZip() { const name = zipName(); return { name, blob: makeZip(buildFiles(), name.replace(/\.zip$/, "")) }; }
+
+  $("saveZipBtn").addEventListener("click", () => {
+    if (!sweep || !sweep.records.length) { showMsg("No trials recorded yet."); return; }
     try {
-      const blob = new Blob([csv], { type: "text/csv" }), url = URL.createObjectURL(blob), a = document.createElement("a");
+      const { name, blob } = exportZip(), url = URL.createObjectURL(blob), a = document.createElement("a");
       a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60000);
-    } catch (e) { showMsg("Couldn't save the file here (" + e.message + "). Try Share CSV instead."); }
-  }
-  async function shareCSV(csv, name) {
+      sweep.exported = true; persist();
+    } catch (e) { showMsg("Couldn't save the file (" + esc(e.message) + "). Try Share all instead."); }
+  });
+  $("shareZipBtn").addEventListener("click", async () => {
+    if (!sweep || !sweep.records.length) { showMsg("No trials recorded yet."); return; }
     try {
-      const file = new File([csv], name, { type: "text/csv" });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: name });
-      else showMsg("Sharing files isn't supported in this browser. Use Save CSV instead.");
-    } catch (e) { if (e.name !== "AbortError") showMsg("Share failed (" + e.message + "). Try Save CSV instead."); }
-  }
-
-  let shownRun = null;
-  function showSummary(run) {
-    shownRun = run;
-    const s = run.summary, L = summaryLines(run.meta, s);
-    const cls = s.pass === true ? "pass" : "fail", txt = s.pass === true ? "PASS" : s.pass === "gaps" ? "CHECK" : "FAIL";
-    $("summary").innerHTML = (s.samples ? `<div class="verdict ${cls}">${txt}</div>` : "") +
-      `<div class="hint" style="font-size:13px;color:var(--text)">${L.map(esc).join("<br>")}</div>`;
-    $("summaryPanel").style.display = "block";
-  }
-  function esc(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
-  $("saveBtn").addEventListener("click", () => { if (shownRun) { saveCSV(shownRun.csv, fileName(shownRun.meta)); markSaved(); } });
-  $("shareBtn").addEventListener("click", () => { if (shownRun) { shareCSV(shownRun.csv, fileName(shownRun.meta)); markSaved(); } });
+      const { name, blob } = exportZip(), file = new File([blob], name, { type: "application/zip" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); sweep.exported = true; persist(); }
+      else showMsg("Sharing files isn't supported in this browser. Use Save all instead.");
+    } catch (e) { if (e.name !== "AbortError") showMsg("Share failed (" + esc(e.message) + "). Try Save all instead."); }
+  });
   $("copyBtn").addEventListener("click", async () => {
-    if (!shownRun) return;
-    try { await navigator.clipboard.writeText(summaryLines(shownRun.meta, shownRun.summary).join("\n")); $("copyBtn").textContent = "Copied"; setTimeout(() => $("copyBtn").textContent = "Copy summary", 1500); }
+    if (!sweep) return;
+    try { await navigator.clipboard.writeText(summaryText().join("\n")); $("copyBtn").textContent = "Copied"; setTimeout(() => $("copyBtn").textContent = "Copy summary", 1500); }
     catch (e) { showMsg("Couldn't copy to the clipboard."); }
   });
-  function markSaved() { try { const r = JSON.parse(localStorage.getItem("shakeMonitorLastRun")); if (r) { r.saved = true; localStorage.setItem("shakeMonitorLastRun", JSON.stringify(r)); } } catch (e) {} }
 
-  function renderHistory() {
-    const tb = $("history"); tb.innerHTML = "";
-    runs.forEach((r, i) => {
-      const s = r.summary, tr = document.createElement("tr");
-      const res = !s.samples ? "no data" : (s.pass === true ? "PASS" : s.pass === "gaps" ? "CHECK" : "FAIL") + ` · longest ${fmtS(s.longest)}` + (s.seg ? ` · ${fmtG(s.seg.metricMean)} g` : "");
-      tr.innerHTML = `<td>${esc(r.meta.label)}</td><td>${esc(res)}</td><td></td>`;
-      const b1 = document.createElement("button"); b1.textContent = "View"; b1.onclick = () => showSummary(r);
-      const b2 = document.createElement("button"); b2.textContent = "Save"; b2.onclick = () => saveCSV(r.csv, fileName(r.meta));
-      b1.style.padding = b2.style.padding = "6px 10px"; b2.style.marginLeft = "4px";
-      tr.lastChild.append(b1, b2); tb.appendChild(tr);
-    });
-    $("historyPanel").style.display = runs.length ? "block" : "none";
+  // ===== rendering =====
+  function render() {
+    if (!sweep) return;
+    const item = currentPlanItem(), total = sweep.plan.length, done = sweep.records.filter(r => r.status === "done").length;
+    const running = phase === "running" || phase === "postroll";
+    $("startBtn").disabled = !(sensorOn && phase === "ready" && item);
+    $("startBtn").textContent = item ? (item.kind === "control" ? `Start trial ${item.n} (control)` : `Start trial ${item.n} · ${fmtG(item.target)} g`) : "Sweep complete";
+    $("abortBtn").disabled = !running;
+    $("noiseBtn").disabled = !(sensorOn && !running && !noiseMeas && phase !== "await");
+    $("askPanel").style.display = phase === "await" ? "block" : "none";
+    if (phase === "await" && pendingTrial) {
+      const s = pendingTrial.summary, sg = s.seg || {};
+      $("askInfo").innerHTML = esc(`Trial ${pendingTrial.n} · ${levelName(pendingTrial.kind, pendingTrial.target)} · attempt ${pendingTrial.attempt}`) + "<br>" +
+        esc(pendingTrial.kind === "control" ? `Rig still for ${fmtS(s.duration)}, max ${S.metric} ${fmtG(s.maxMetric)} g` :
+          `Held ${fmtS(s.longest)} in range, achieved ${fmtG(sg.metricMean)} g` + (sg.freq ? ` at ${sg.freq.toFixed(1)} Hz` : "")) +
+        (s.valid ? "" : "<br><b style='color:#ffb4b4'>Data gap during the trial: consider Redo.</b>");
+    }
+    const lockSetup = sweep.records.length > 0 || phase !== "ready";
+    $("setup").classList.toggle("locked", lockSetup);
+    $("setupLockNote").style.display = lockSetup ? "block" : "none";
+
+    const c = sweep.config;
+    $("sweepInfo").innerHTML = esc(`${c.label || "Unnamed sweep"}: ${done} of ${total} trials done`) + "<br>" +
+      esc(`Levels ${sweep.levels.map(fmtG).join(", ")} g × ${c.reps}` + (c.controls ? ` + ${c.controls} control` : "") + `, ${c.order === "random" ? "randomized" : "low to high"}`) +
+      "<br>" + esc(sweep.noise ? `Noise floor: mean ${fmtG(sweep.noise.mean)} g, max ${fmtG(sweep.noise.max)} g (${sweep.noise.metric})` : "Noise floor: not measured yet");
+    const lowestLo = sweep.levels.length ? sweep.levels[0] * (1 - sweep.signal.tol / 100) : 0;
+    $("noiseWarn").innerHTML = sweep.noise && sweep.noise.max > 0.5 * lowestLo
+      ? `<div class="warn">The resting noise (max ${fmtG(sweep.noise.max)} g) is more than half of the lowest band's lower edge (${fmtG(lowestLo)} g). Low-level trials may read high. Check the phone is strapped firmly, or raise the start level.</div>` : "";
+
+    // results table: planned trials with their latest records
+    const tb = $("results"); tb.innerHTML = "";
+    for (const p of sweep.plan) {
+      const recs = sweep.records.filter(r => r.n === p.n), fin = recs.find(r => r.status === "done");
+      const extra = recs.filter(r => r.status !== "done").length;
+      const tr = document.createElement("tr"); if (item && p.n === item.n) tr.className = "cur";
+      const sg = fin && fin.summary.seg ? fin.summary.seg : null;
+      const status = fin ? (fin.summary.valid ? "valid" : "invalid") : (item && p.n === item.n ? (running ? "recording" : phase === "await" ? "answer" : "next") : "");
+      tr.innerHTML = `<td>${p.n}</td><td>${esc(p.kind === "control" ? "control" : fmtG(p.target))}</td>` +
+        `<td>${fin && sg ? fmtG(sg.metricMean) : ""}</td><td>${fin && sg && sg.freq ? sg.freq.toFixed(1) : ""}</td><td></td>` +
+        `<td class="dim">${esc(status)}${extra ? ` (+${extra} redo/abort)` : ""}</td>`;
+      if (fin) {
+        const b = document.createElement("button"); b.className = "small " + (fin.detected ? "yes" : "no");
+        b.textContent = fin.detected ? "Yes" : "No";
+        b.onclick = () => { fin.detected = !fin.detected; sweep.exported = false; persist(); render(); };
+        tr.children[4].appendChild(b);
+      }
+      tb.appendChild(tr);
+    }
+    const lb = $("levels"); lb.innerHTML = "";
+    for (const s of levelStats()) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${esc(levelName(s.kind, s.target))}</td><td>${s.valid} / ${s.planned}</td><td>${s.detected}</td>` +
+        `<td>${s.rate == null ? "–" : Math.round(s.rate * 100) + "%"}</td><td>${s.kind === "control" ? "–" : fmtG(s.achieved)}</td>`;
+      lb.appendChild(tr);
+    }
+    renderPersist();
   }
 
-  // recovery from a previous session
-  try {
-    const r = JSON.parse(localStorage.getItem("shakeMonitorLastRun") || "null");
-    if (r && r.csv && !r.saved) {
-      $("recoverPanel").style.display = "block";
-      $("recoverInfo").textContent = `"${r.label}" from ${new Date(r.startISO).toLocaleString()} wasn't saved before the page closed.`;
-      const name = "shake_recovered_" + r.startISO.replace(/[:]/g, "").replace(/\..+/, "") + ".csv";
-      $("recSaveBtn").onclick = () => { saveCSV(r.csv, name); r.saved = true; try { localStorage.setItem("shakeMonitorLastRun", JSON.stringify(r)); } catch (e) {} };
-      $("recShareBtn").onclick = () => shareCSV(r.csv, name);
-      $("recDiscardBtn").onclick = () => { try { localStorage.removeItem("shakeMonitorLastRun"); } catch (e) {} $("recoverPanel").style.display = "none"; };
-    }
-  } catch (e) {}
-
-  // ---------- UI loop ----------
   const canvas = $("chart"), cg = canvas.getContext("2d");
   let lastFreqCalc = 0;
-  function draw() {
+  function frame() {
     const now = performance.now();
-    if (now - rateT0 >= 1000) {
-      $("rate").textContent = sensorOn ? Math.round(rateCount * 1000 / (now - rateT0)) + " Hz" : "–";
-      rateCount = 0; rateT0 = now;
-    }
+    if (now - rateT0 >= 1000) { $("rate").textContent = sensorOn ? Math.round(rateCount * 1000 / (now - rateT0)) + " Hz" : "–"; rateCount = 0; rateT0 = now; }
     if (sensorOn && now - lastFreqCalc > 1000 && freqBuf.length > 60) {
-      lastFreqCalc = now;
-      const d = dominantFreq(freqBuf);
-      $("freq").textContent = d && current.metric > S.lo * 0.3 ? "≈" + d.f.toFixed(1) + " Hz" : "–";
+      lastFreqCalc = now; const d = dominantFreq(freqBuf);
+      $("freq").textContent = d && current.metric > 0.01 ? "≈" + d.f.toFixed(1) + " Hz" : "–";
     }
-    const stale = sensorOn && lastSampleWall && now - lastSampleWall > 500;
-    const lv = $("level");
-    let label, color;
+    const item = currentPlanItem(), stale = sensorOn && lastSampleWall && now - lastSampleWall > 500;
+    const rec = phase === "running" || phase === "postroll";
+    $("trialLine").textContent = !sweep ? "–" : item
+      ? `Trial ${item.n} of ${sweep.plan.length} · ` + (item.kind === "control" ? "CONTROL (no shaking)" : `${fmtG(item.target)} g · rep ${item.rep}/${sweep.config.reps}`)
+      : "Sweep complete";
+    let label, color, bar = 0;
     if (!sensorOn) { label = "SENSORS OFF"; color = "var(--idle)"; }
     else if (stale || lastSampleWall === 0) { label = "NO DATA"; color = "var(--bad)"; }
+    else if (phase === "await") { label = "DETECTED? ANSWER BELOW"; color = "var(--ask)"; }
+    else if (phase === "finished") { label = "SWEEP COMPLETE – EXPORT"; color = "var(--ask)"; }
+    else if (phase === "postroll") { label = "✓ DONE – STOP SHAKING"; color = "var(--held)"; bar = 100; }
+    else if (noiseMeas) { label = "MEASURING NOISE – KEEP STILL"; color = "var(--idle)"; }
     else if (current.state === -1) { label = "SETTLING…"; color = "var(--idle)"; }
+    else if (S.control) {
+      if (current.state === 2) { label = "TOO MUCH MOTION"; color = "var(--above)"; }
+      else { label = rec ? `KEEP STILL – ${Math.max(0, S.required - live.dur).toFixed(0)} s` : "CONTROL – KEEP STILL"; color = "var(--held)"; }
+      if (rec) bar = 100 * live.dur / S.required;
+    }
     else if (current.state === 0) { label = "TOO LOW"; color = "var(--below)"; }
     else if (current.state === 2) { label = "TOO HIGH"; color = "var(--above)"; }
-    else if (current.held) { label = "HOLD ✓ IN RANGE"; color = "var(--held)"; }
-    else { label = "IN RANGE – HOLD " + Math.max(0, S.hold - current.contIn).toFixed(1) + " s"; color = "var(--in)"; }
-    lv.style.background = color;
-    $("levelState").textContent = (recording ? "● REC  " : "") + label;
+    else if (current.held) {
+      label = rec ? `ON TARGET – ${Math.max(0, S.required - live.stretch).toFixed(0)} s TO GO` : "ON TARGET"; color = "var(--held)";
+      bar = rec ? 100 * live.stretch / S.required : 100;
+    }
+    else { label = "IN RANGE – HOLD " + Math.max(0, S.hold - current.contIn).toFixed(1) + " s"; color = "var(--in)"; bar = 100 * current.contIn / Math.max(S.hold, 0.01); }
+    $("level").style.background = color;
+    $("levelState").textContent = (rec ? "● REC  " : "") + label;
     $("levelValue").innerHTML = (current.metric == null || !sensorOn ? "–" : fmtG(current.metric)) + "<small> g</small>";
-    $("holdBar").style.width = (sensorOn && current.state === 1 ? Math.min(100, 100 * current.contIn / Math.max(S.hold, 0.01)) : 0) + "%";
-
-    if (recording && live) {
+    $("levelSub").textContent = S.control ? `Keep below ${fmtG(S.hi)} g` : `Target ${fmtG(S.lo)} – ${fmtG(S.hi)} g (${S.metric}, ${axisName(S.axis)})`;
+    $("holdBar").style.width = Math.min(100, Math.max(0, bar)) + "%";
+    if (rec && live) {
       $("sRun").textContent = fmtS(live.dur); $("sIn").textContent = fmtS(live.inTime);
       $("sLong").textContent = fmtS(live.longest); $("sPeak").textContent = fmtG(live.peak) + " g"; $("sGaps").textContent = live.gaps;
-      $("sLong").style.color = live.longest >= S.required ? "var(--held)" : "";
     }
     drawChart();
-    requestAnimationFrame(draw);
+    requestAnimationFrame(frame);
   }
   function drawChart() {
     const dpr = window.devicePixelRatio || 1, w = canvas.clientWidth, h = canvas.clientHeight;
     if (canvas.width !== w * dpr || canvas.height !== h * dpr) { canvas.width = w * dpr; canvas.height = h * dpr; }
     cg.setTransform(dpr, 0, 0, dpr, 0, 0); cg.clearRect(0, 0, w, h);
     const padL = 40, padB = 16, pw = w - padL - 4, ph = h - padB - 4;
-    let ymax = S.hi * 1.6; for (const p of chartBuf) if (p.a > ymax) ymax = p.a;
-    ymax = Math.min(ymax, S.hi * 6);
+    const ref = Math.max(S.hi, 0.02);
+    let ymax = ref * 1.6; for (const p of chartBuf) if (p.a > ymax) ymax = p.a;
+    ymax = Math.min(ymax, ref * 6);
     const tEnd = chartBuf.length ? chartBuf[chartBuf.length - 1].t : 0, tStart = tEnd - 20;
     const X = t => padL + (t - tStart) / 20 * pw, Y = v => 4 + ph - Math.min(v, ymax) / ymax * ph;
     cg.fillStyle = "rgba(31,157,85,.22)"; cg.fillRect(padL, Y(S.hi), pw, Y(S.lo) - Y(S.hi));
     cg.strokeStyle = "#2a2f3a"; cg.lineWidth = 1; cg.fillStyle = "#9aa3b2"; cg.font = "11px -apple-system, sans-serif";
-    for (const v of [0, S.lo, S.target, S.hi, ymax]) { cg.beginPath(); cg.moveTo(padL, Y(v)); cg.lineTo(w - 4, Y(v)); cg.stroke(); cg.fillText(v.toFixed(3), 2, Y(v) + 4); }
+    const ticks = S.control ? [0, S.hi, ymax] : [0, S.lo, S.target, S.hi, ymax];
+    for (const v of ticks) { cg.beginPath(); cg.moveTo(padL, Y(v)); cg.lineTo(w - 4, Y(v)); cg.stroke(); cg.fillText(v.toFixed(3), 2, Y(v) + 4); }
     for (let k = 0; k <= 20; k += 5) cg.fillText("-" + (20 - k) + "s", X(tStart + k) - 10, h - 3);
     if (chartBuf.length < 2) return;
     cg.strokeStyle = "rgba(200,210,230,.35)"; cg.beginPath();
@@ -633,10 +887,32 @@
     cg.strokeStyle = "#ffffff"; cg.lineWidth = 2.5; cg.beginPath();
     chartBuf.forEach((p, i) => i ? cg.lineTo(X(p.t), Y(p.m)) : cg.moveTo(X(p.t), Y(p.m))); cg.stroke();
   }
-  requestAnimationFrame(draw);
 
-  // test hook (harmless in normal use)
-  window.__shake = { processSample, get rows() { return rows; }, get runs() { return runs; }, summarize, buildCSV };
+  window.addEventListener("beforeunload", e => { if (phase === "running" || phase === "postroll" || phase === "await") { e.preventDefault(); e.returnValue = ""; } });
+
+  // ===== init =====
+  loadFormPrefs();
+  for (const id of ALL_IDS) $(id).addEventListener("change", rebuildIfEditable);
+  for (const id of ["swLabel", "swNotes"]) $(id).addEventListener("input", rebuildIfEditable);
+  (async () => {
+    const saved = await restore();
+    if (saved && saved.plan && saved.records) {
+      sweep = saved;
+      $("swLabel").value = sweep.config.label || ""; $("swNotes").value = sweep.config.notes || "";
+      if (sweep.records.length) {
+        // show the settings the sweep was run with
+        const c = sweep.config, sg = sweep.signal;
+        Object.entries({ swStart: c.start, swEnd: c.end, swStep: c.step, swReps: c.reps, swOrder: c.order, swControls: c.controls,
+          tol: sg.tol, metric: sg.metric, axis: sg.axis, hold: sg.hold, required: sg.required, win: sg.win, hpf: sg.hpf, lpf: sg.lpf, postRoll: sg.postRoll })
+          .forEach(([k, v]) => { if (v != null) $(k).value = v; });
+        $("tickWhileHeld").checked = !!sg.tickWhileHeld;
+      }
+      phase = sweep.cursor >= sweep.plan.length ? "finished" : "ready";
+    } else sweep = newSweepObject();
+    applyTarget(); persist(); render(); requestAnimationFrame(frame);
+  })();
+
+  window.__shake = { get sweep() { return sweep; }, get phase() { return phase; }, answer, buildFiles, exportZip };
 })();
 </script>
 </body>
